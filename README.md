@@ -8,9 +8,11 @@ Usage:
 ./setup_alphafold_run_script.sh -f [Fasta file] -w [work directory] --max_template_date yyyy-mm-dd
 ```
 
+Example:
+
 ```
-[jarunanp@eu-login-20 alphafold_on_euler]$ ./setup_alphafold_run_script.sh -f ../../fastafiles/IFGSC_6mer.fasta 
-  Reading /cluster/work/sis/cdss/jarunanp/21_12_alphafold_benchmark/fastafiles/IFGSC_6mer.fasta
+[jarunanp@eu-login-20 alphafold_on_euler]$ ./setup_alphafold_run_script.sh -f ../../fastafiles/IFGSC_6mer.fasta -w $SCRATCH/alphafold_run
+  Reading /cluster/home/jarunanp/alphafold_run/fastafiles/IFGSC_6mer.fasta
   Protein name:              IFGSC_6mer
   Number of sequences:       6
   Protein type:              multimer
@@ -24,5 +26,5 @@ Usage:
     Number of GPUs: 
     Total GPU memory: 
     Total scratch space: 
-  Output an LSF run script for AlphaFold2: /cluster/work/sis/cdss/jarunanp/21_12_alphafold_benchmark/scripts/alphafold_on_euler/run_alphafold.bsub
+  Output an LSF run script for AlphaFold2: /cluster/scratch/jarunanp/21_12_alphafold_benchmark/scripts/alphafold_on_euler/run_alphafold.bsub
 ```
