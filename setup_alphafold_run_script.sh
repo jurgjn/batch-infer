@@ -5,9 +5,37 @@ FASTAFILE="undefined.fasta"
 WORKDIR=$PWD
 MAX_TEMPLATE_DATE=$(date +'%Y-%m-%d')
 
+print_help()
+{
+   # Display Help
+   echo "Script to create input file for AlphaFold2 on Euler."
+   echo
+   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--skip_minimization]"
+   echo "options:"
+   echo "-h                     print help and exit"
+   echo "-f                     FASTA filename"
+   echo "-w                     working directory"
+   echo "--max_template_date    format: "
+   echo "--skip_minimization    no Amber minimization will be performed"
+   echo
+}
+
+
+# Print help if not options are provided
+if [[ $# -eq 0 ]];then
+    print_help
+    exit 1
+fi
+
+
 # Parse in arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
+	 -h|--help)                                                                                                                                                                                               
+          # Print help and exit                                                                                                                                                                                   
+          print_help                                                                                                                                                                                              
+          exit
+	  ;; 
         -f|--fastafile)
           # Get absolute path
           FASTAFILE=$(readlink -m $2)
@@ -33,8 +61,19 @@ while [[ $# -gt 0 ]]; do
           shift;
           shift;
           ;;
+	--skip_minimization)
+	  # Amber minimization is done per default
+	  # For large proteins with more than 3000 amino acids minimzation is time consuming
+          SKIP_MINIMIZATION=True
+	  shift;
+	  ;;
+        * )
+          print_help
+          exit 1
     esac
 done
+
+
 
 # Count the number of lines in the fastafile
 n_lines=$(grep -cve '^\s*$' $FASTAFILE)
@@ -113,16 +152,19 @@ elif (( "$sum_aa" >= 3500 )); then
     ENABLE_UNIFIED_MEMORY=1
     MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
 fi
-echo -e "  Estimate required resources:"
-echo -e "    Run time: "
-echo -e "    Number of CPUs: "
-echo -e "    Total CPU memory: "
-echo -e "    Number of GPUs: "
-echo -e "    Total GPU memory: "
-echo -e "    Total scratch space: "
+
+echo -e "    Estimate required resources: " 
+echo -e "    Run time: " $RUNTIME
+echo -e "    Number of CPUs: " $NCPUS
+echo -e "    Total CPU memory: " $TOTAL_CPU_MEM_MB
+echo -e "    Number of GPUs: " $NGPUS
+echo -e "    Total GPU memory: " $TOTAL_GPU_MEM_MB
+echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
+
 ########################################
 # Output an LSF run script for AlphaFold
 ########################################
+
 mkdir -p $WORKDIR
 RUNSCRIPT=$WORKDIR/"run_alphafold.bsub"
 echo -e "  Output an LSF run script for AlphaFold2: $RUNSCRIPT"
@@ -165,3 +207,7 @@ mkdir -p output/$PROTEIN
 rsync -av \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
 
 EOF
+
+#env2lmod
+#module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.1.1
+#alphafold_init
