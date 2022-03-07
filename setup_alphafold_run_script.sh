@@ -83,10 +83,10 @@ echo "  Number of sequences:       $((n_lines/2))"
 # If n_lines > 2 => multiple protein sequences => multimer
 if (( "$n_lines" <= 2 )); then
     echo "  Protein type:              monomer"
-    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\ "
+    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 "
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
-    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta \\ "
+    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta"
 fi
 
 # Determine the sequence length
@@ -200,8 +200,8 @@ python /cluster/apps/nss/alphafold/alphafold-2.1.1/run_alphafold.py \\
 --mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
 --template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
+--fasta_paths=$FASTAFILE \\
 $OPTIONS
---fasta_paths=$FASTAFILE
 
 mkdir -p output/$PROTEIN
 rsync -av \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
