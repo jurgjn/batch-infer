@@ -86,7 +86,7 @@ if (( "$n_lines" <= 2 )); then
     OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\ "
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
-    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta \\ "
+    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta \\"
 fi
 
 # Determine the sequence length
