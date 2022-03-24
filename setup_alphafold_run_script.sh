@@ -86,7 +86,7 @@ if (( "$n_lines" <= 2 )); then
     OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\ "
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
-    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta \\"
+    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"
 fi
 
 # Determine the sequence length
@@ -179,7 +179,7 @@ cat <<EOF > $RUNSCRIPT
 #BSUB -J alphafold
 
 source /cluster/apps/local/env2lmod.sh
-module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.1.1
+module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
 source /cluster/apps/nss/alphafold/venv_alphafold/bin/activate
 
 # Define paths to databases and out put directory
