@@ -86,7 +86,7 @@ if (( "$n_lines" <= 2 )); then
     OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 "
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
-    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=$DATA_DIR/uniprot/uniprot.fasta"
+    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"
 fi
 
 # Determine the sequence length
@@ -101,7 +101,7 @@ echo "                    max:     $max_aa"
 # Estimate the required computing resources
 # For simplicity, the two types of GPUs users could select are RTX 2080 Ti with 11GB GPU mem (GPU_MEM_MB>=10240) 
 # and TITAN RTX with 24GB GPU mem (GPU_MEM_MB >= 20480)
-if (( "$sum_aa" < 800 )); then
+if (( "$sum_aa" < 200 )); then
     RUNTIME="04:00"
     NCPUS=12
     NGPUS=1
@@ -111,7 +111,7 @@ if (( "$sum_aa" < 800 )); then
     TOTAL_SCRATCH_MB=120000
     ENABLE_UNIFIED_MEMORY=0
     MEM_FRACTION=1
-elif (( "$sum_aa" >= 800 )) && (( "$sum_aa" < 1500 )); then
+elif (( "$sum_aa" >= 200 )) && (( "$sum_aa" < 1500 )); then
     RUNTIME="24:00"
     NCPUS=12
     NGPUS=1
@@ -119,8 +119,8 @@ elif (( "$sum_aa" >= 800 )) && (( "$sum_aa" < 1500 )); then
     TOTAL_GPU_MEM_MB=20480
     TOTAL_CPU_MEM_MB=120000
     TOTAL_SCRATCH_MB=120000
-    ENABLE_UNIFIED_MEMORY=0
-    MEM_FRACTION=1
+    ENABLE_UNIFIED_MEMORY=1
+    MEM_FRACTION=2
 elif (( "$sum_aa" >= 1500 )) && (( "$sum_aa" < 2500 )); then
     RUNTIME="24:00"
     NCPUS=24
@@ -179,7 +179,7 @@ cat <<EOF > $RUNSCRIPT
 #BSUB -J alphafold
 
 source /cluster/apps/local/env2lmod.sh
-module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.1.1
+module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
 source /cluster/apps/nss/alphafold/venv_alphafold/bin/activate
 
 # Define paths to databases and out put directory
