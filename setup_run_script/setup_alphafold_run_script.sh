@@ -154,11 +154,11 @@ elif (( "$sum_aa" >= 3500 )); then
 fi
 
 echo -e "    Estimate required resources: " 
-echo -e "    Run time: " $RUNTIME
-echo -e "    Number of CPUs: " $NCPUS
-echo -e "    Total CPU memory: " $TOTAL_CPU_MEM_MB
-echo -e "    Number of GPUs: " $NGPUS
-echo -e "    Total GPU memory: " $TOTAL_GPU_MEM_MB
+echo -e "    Run time:            " $RUNTIME
+echo -e "    Number of CPUs:      " $NCPUS
+echo -e "    Total CPU memory:    " $TOTAL_CPU_MEM_MB
+echo -e "    Number of GPUs:      " $NGPUS
+echo -e "    Total GPU memory:    " $TOTAL_GPU_MEM_MB
 echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
 
 ########################################
@@ -188,9 +188,12 @@ OUTPUT_DIR=\${TMPDIR}/output
 
 # Activate unified memory
 export TF_FORCE_UNIFIED_MEMORY=$ENABLE_UNIFIED_MEMORY
-export XLA_PYTHON_CLIENT_MEM_FRACTION=$MEM_FRACTION.0
+export XLA_PYTHON_CLIENT_MEM_FRACTION=${MEM_FRACTION}.0
 
-python /cluster/apps/nss/alphafold/alphafold-2.1.1/run_alphafold.py \\
+# If use_gpu_relax is enabled, enable CUDA multi-process service. Uncomment the line below
+#nvidia-cuda-mps-control -d
+
+python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --data_dir=\$DATA_DIR \\
 --output_dir=\$OUTPUT_DIR \\
 --max_template_date="$MAX_TEMPLATE_DATE" \\
@@ -200,8 +203,12 @@ python /cluster/apps/nss/alphafold/alphafold-2.1.1/run_alphafold.py \\
 --mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
 --template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
+--use_gpu_relax=0 \\
 --fasta_paths=$FASTAFILE \\
 $OPTIONS
+
+# Disable CUDA multi-process service
+#echo quit | nvidia-cuda-mps-control
 
 mkdir -p output/$PROTEIN
 rsync -av \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
