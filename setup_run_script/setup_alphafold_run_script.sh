@@ -172,7 +172,7 @@ echo -e "  Output an LSF run script for AlphaFold2: $RUNSCRIPT"
 cat <<EOF > $RUNSCRIPT  
 #!/usr/bin/bash
 #BSUB -n $NCPUS
-#BSUB -n $RUNTIME
+#BSUB -W $RUNTIME
 #BSUB -R "rusage[mem=$((TOTAL_CPU_MEM_MB/NCPUS)), scratch=$((TOTAL_SCRATCH_MB/NCPUS))]"
 #BSUB -R "rusage[ngpus_excl_p=$NGPUS] select[gpu_mtotal0>=$GPU_MEM_MB]"
 #BSUB -R "span[hosts=1]"
