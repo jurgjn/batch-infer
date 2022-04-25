@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools >= 40.6.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+target-version = ['py38', 'py39', 'py310']
+include = '\.pyi?$'
+exclude = '''
+(
+    \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.tox
+  | dist
+)
+'''
+
+[tool.mypy]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["matplotlib", "matplotlib.figure", "matplotlib.pyplot"]
+ignore_missing_imports = true
+
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = "line-too-long,invalid-name"
+output-format = "text"
+reports = "no"
+
