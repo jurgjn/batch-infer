@@ -27,23 +27,34 @@ class PredictionResult(TypedDict):
     predicted_aligned_error: Any
 
 
-def main(data: Iterable[tuple[str, PredictionResult]], out_dir: Optional[Path]) -> None:
+def main(
+    data: Iterable[tuple[str, PredictionResult]],
+    features: Optional[dict[str, Any]],
+    out_dir: Optional[Path],
+) -> None:
     """Main function"""
+
     plt.rc("font", size=15)
     data = list(data)
-    figs = (
+    seq_length: Optional[int] = (
+        features.get("seq_length") if features is not None else None
+    )
+    figs: tuple[tuple[str, Figure], ...] = (
         ("pLDDT", plot_plddt(data)),
         ("distogram", plot_distogram(data)),
+        ("paes", plot_paes(data, seq_length) if seq_length is not None else None),
     )
+
     if out_dir is not None:
         os.makedirs(out_dir, exist_ok=True)
         for label, fig in figs:
-            fig.savefig(out_dir / (label + ".svg"))
+            if fig is not None:
+                fig.savefig(out_dir / (label + ".svg"))
     else:
         plt.show()
 
 
-def load_pkl(path: Path) -> PredictionResult:
+def load_pkl(path: Path) -> dict[str, Any]:
     """Load a single pkl file"""
     with open(path, "rb") as stream:
         data: dict[str, Any] = pickle.load(stream)
@@ -99,16 +110,14 @@ def plot_paes(
     models: Iterable[tuple[str, PredictionResult]],
     seq_len: int,
     Ls: Optional[list[int]] = None,
-) -> Figure:
+) -> Optional[Figure]:
     """Plot predicted aligned error"""
-    models = list(models)
+    models = [(m_name, m) for m_name, m in models if "predicted_aligned_error" in m]
+    if not models:
+        return None
     num_models = len(models)
     fig = plt.figure(figsize=(3 * num_models, 2))
-    paes = [
-        model["predicted_aligned_error"][i][:seq_len]
-        for i in range(seq_len)
-        for _, model in models
-    ]
+    paes = (model["predicted_aligned_error"][:seq_len][:seq_len] for _, model in models)
     for n, pae in enumerate(paes):
         plt.subplot(1, num_models, n + 1)
         plt.title(f"rank_{n+1}")
@@ -118,14 +127,6 @@ def plot_paes(
             plot_ticks(Ls)
         plt.colorbar()
     return fig
-
-
-# def get_query_sequence_len_array():
-#    return [
-#        len(query_seqs_unique[i])
-#        for i, cardinality in enumerate(query_seqs_cardinality)
-#        for _ in range(0, cardinality)
-#    ]
 
 
 def plot_ticks(Ls: list[int]) -> None:
@@ -161,4 +162,8 @@ if __name__ == "__main__":
     )
     _cmd_args = _parser.parse_args()
 
-    main(data=load_prediction_results(_cmd_args.data), out_dir=_cmd_args.out_dir)
+    main(
+        data=load_prediction_results(_cmd_args.data),
+        features=load_optional_pkl(_cmd_args.data / "features.pkl"),
+        out_dir=_cmd_args.out_dir,
+    )
