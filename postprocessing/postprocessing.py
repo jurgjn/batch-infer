@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from typing import Any, Optional, TypedDict, cast
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 import pickle
 import os
 import glob
@@ -34,7 +34,6 @@ def main(
 ) -> None:
     """Main function"""
 
-    plt.rc("font", size=15)
     data = list(data)
     seq_length: Optional[int] = (
         features.get("seq_length") if features is not None else None
@@ -77,7 +76,7 @@ def load_prediction_result(path: Path) -> PredictionResult:
 def load_prediction_results(path: Path) -> Iterable[tuple[str, PredictionResult]]:
     """Load output pkls from a folder"""
 
-    for pkl_path in glob.glob(os.path.join(path, "result_*.pkl")):
+    for pkl_path in sorted(glob.glob(os.path.join(path, "result_*.pkl"))):
         yield (
             os.path.basename(pkl_path).removeprefix("result_").removesuffix(".pkl"),
             load_prediction_result(Path(pkl_path)),
@@ -97,13 +96,31 @@ def plot_plddt(models: Iterable[tuple[str, PredictionResult]]) -> Figure:
     return fig
 
 
-def plot_distogram(models: Iterable[tuple[str, PredictionResult]]) -> Figure:
+def plot_distogram(models: Sequence[tuple[str, PredictionResult]]) -> Figure:
     """Generate svg distogram"""
-    fig = plt.figure(figsize=(10, 6), dpi=100)
-    for label, model in models:
-        plt.plot(model["distogram"]["logits"][-1][-1], label=label)
-    plt.legend()
+    fig = plt.figure(figsize=(3 * len(models), 2))
+    for n, (label, model) in enumerate(models, start=1):
+        plt.subplot(1, len(models), n)
+        plt.title(label)
+        dist_bins = numpy.argmax(expit(model["distogram"]["logits"]), axis=-1)
+        # bins to Å (63 bins from 2 Å to 22 Å):
+        dist = 2.0 + dist_bins / 63.0 * 20.0
+        plt.imshow(dist)
+        cbar = plt.colorbar()
+    # Label only the last one:
+    cbar.ax.set_ylabel("Distance [Å]")
+
     return fig
+
+
+def expit(x: Any) -> Any:
+    """expit function"""
+    out = numpy.empty_like(x)
+    x_negative = x < 0.0
+    out[~x_negative] = 1.0 / (1.0 + numpy.exp(-x[~x_negative]))
+    e_x = numpy.exp(x[x_negative])
+    out[x_negative] = e_x / (1.0 + e_x)
+    return out
 
 
 def plot_paes(
