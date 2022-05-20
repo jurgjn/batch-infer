@@ -18,6 +18,14 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import numpy
 
+try:
+    from pymol import cmd as pymol_cmd
+
+    HAVE_PYMOL = True
+except ImportError:
+    HAVE_PYMOL = False
+
+
 __version__ = "0.1.0"
 
 
@@ -30,13 +38,13 @@ class PredictionResult(TypedDict):
 
 
 def main(
-    data: Iterable[tuple[str, PredictionResult]],
+    data_dir: Path,
     features: Optional[dict[str, Any]],
     out_dir: Optional[Path],
 ) -> None:
     """Main function"""
 
-    data = list(data)
+    data = list(load_prediction_results(data_dir))
     seq_length: Optional[int] = (
         features.get("seq_length") if features is not None else None
     )
@@ -51,6 +59,9 @@ def main(
         for label, fig in figs:
             if fig is not None:
                 fig.savefig(out_dir / (label + ".svg"))
+        if HAVE_PYMOL:
+            for pdb in glob.glob(os.path.join(data_dir, "*relaxed_*.pdb")):
+                plot_structure(Path(pdb), out_dir / (Path(pdb).stem + ".png"))
     else:
         plt.show()
 
@@ -180,6 +191,24 @@ def plot_ticks(Ls: list[int]) -> None:
     plt.yticks(ticks, alphabet_list[: len(ticks)])
 
 
+def plot_structure(pdb_path: Path, out_path: Path) -> None:
+    """Display 3D structure"""
+    pymol_cmd.load(str(pdb_path))
+    pymol_cmd.show("cartoon")
+    pymol_cmd.hide("lines", "all")
+    pymol_cmd.set("depth_cue", 0)
+    pymol_cmd.set("spec_reflect", 0)
+    pymol_cmd.set("bg_rgb", [1, 1, 1])
+    pymol_cmd.set("orthoscopic", "on")
+    pymol_cmd.set("cartoon_fancy_helices", 1)
+    pymol_cmd.set("cartoon_smooth_loops", 1)
+    pymol_cmd.set("cartoon_highlight_color", 1)
+    pymol_cmd.set("ray_shadows", 0)
+    pymol_cmd.set("ray_texture", 1)
+    pymol_cmd.ray()
+    pymol_cmd.png(str(out_path))
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -199,7 +228,7 @@ if __name__ == "__main__":
     _cmd_args = _parser.parse_args()
 
     main(
-        data=load_prediction_results(_cmd_args.data),
+        data_dir=_cmd_args.data,
         features=load_optional_pkl(_cmd_args.data / "features.pkl"),
         out_dir=_cmd_args.out_dir,
     )

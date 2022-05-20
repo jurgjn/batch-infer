@@ -19,7 +19,7 @@ exclude = '''
 strict = true
 
 [[tool.mypy.overrides]]
-module = ["matplotlib", "matplotlib.figure", "matplotlib.pyplot"]
+module = ["matplotlib", "matplotlib.figure", "matplotlib.pyplot", "pymol"]
 ignore_missing_imports = true
 
 
@@ -27,4 +27,3 @@ ignore_missing_imports = true
 disable = "line-too-long,invalid-name"
 output-format = "text"
 reports = "no"
-
