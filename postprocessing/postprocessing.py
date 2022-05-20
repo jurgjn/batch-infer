@@ -8,7 +8,9 @@ from typing import Any, Optional, TypedDict, cast
 from collections.abc import Iterable, Sequence
 import pickle
 import os
+import sys
 import glob
+import json
 from pathlib import Path
 from string import ascii_uppercase, ascii_lowercase
 
@@ -76,11 +78,25 @@ def load_prediction_result(path: Path) -> PredictionResult:
 def load_prediction_results(path: Path) -> Iterable[tuple[str, PredictionResult]]:
     """Load output pkls from a folder"""
 
-    for pkl_path in sorted(glob.glob(os.path.join(path, "result_*.pkl"))):
-        yield (
+    try:
+        with open(path / "ranking_debug.json", "rb") as f:
+            ranking = json.load(f)
+        return (
+            (f"Rank {n}", load_prediction_result(path / f"result_{stem}.pkl"))
+            for n, stem in enumerate(ranking["order"], start=1)
+        )
+    except FileNotFoundError as e:
+        sys.stderr.write(
+            f"⚠️ While reading ranking_debug.json: {e}. Using file name labels."
+        )
+
+    return (
+        (
             os.path.basename(pkl_path).removeprefix("result_").removesuffix(".pkl"),
             load_prediction_result(Path(pkl_path)),
         )
+        for pkl_path in sorted(glob.glob(os.path.join(path, "result_*.pkl")))
+    )
 
 
 def plot_plddt(models: Iterable[tuple[str, PredictionResult]]) -> Figure:
@@ -134,10 +150,13 @@ def plot_paes(
         return None
     num_models = len(models)
     fig = plt.figure(figsize=(3 * num_models, 2))
-    paes = (model["predicted_aligned_error"][:seq_len][:seq_len] for _, model in models)
-    for n, pae in enumerate(paes):
+    paes = (
+        (label, model["predicted_aligned_error"][:seq_len][:seq_len])
+        for label, model in models
+    )
+    for n, (label, pae) in enumerate(paes):
         plt.subplot(1, num_models, n + 1)
-        plt.title(f"rank_{n+1}")
+        plt.title(label)
         Ln = pae.shape[0]
         plt.imshow(pae, cmap="bwr", vmin=0, vmax=30, extent=(0, Ln, Ln, 0))
         if Ls is not None and len(Ls) > 1:
