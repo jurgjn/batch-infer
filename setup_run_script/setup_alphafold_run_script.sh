@@ -57,7 +57,7 @@ while [[ $# -gt 0 ]]; do
         --max_template_date)
           # The max template date of the databases to use for pair representation
           # This could affect the accuracy of the outcome
-          MAX_TEMPLAT_DATE="$2"
+          MAX_TEMPLATE_DATE="$2"
           shift;
           shift;
           ;;
