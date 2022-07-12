@@ -89,6 +89,12 @@ elif (( "$n_lines" > 2 )); then
     OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"
 fi
 
+if (( "$SKIP_MINIMIZATION" == True )); then
+    OPTIONS+="--run_relax=False --use_gpu_relax=False \\"
+else
+    OPTIONS+="--run_relax=True --use_gpu_relax=True \\"
+fi
+
 # Determine the sequence length
 # The required total GPU mem depends on the sum of the number of amino acids
 # The required total CPU mem depends on the max of the number of amino acids
@@ -203,7 +209,6 @@ python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
 --template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
---use_gpu_relax=0 \\
 --fasta_paths=$FASTAFILE \\
 $OPTIONS
 
