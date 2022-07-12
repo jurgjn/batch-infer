@@ -10,7 +10,7 @@ print_help()
    # Display Help
    echo "Script to create input file for AlphaFold2 on Euler."
    echo
-   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--skip_minimization] [--reduced_rsync]"
+   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync]"
    echo "options:"
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
@@ -61,6 +61,12 @@ while [[ $# -gt 0 ]]; do
           shift;
           shift;
           ;;
+	--reduced_dbs)
+	  # Amber minimization is done per default
+	  # For large proteins with more than 3000 amino acids minimzation is time consuming
+          REDUCED_DBS=True
+	  shift;
+	  ;;
 	--skip_minimization)
 	  # Amber minimization is done per default
 	  # For large proteins with more than 3000 amino acids minimzation is time consuming
@@ -88,16 +94,28 @@ echo "  Number of sequences:       $((n_lines/2))"
 # If n_lines > 2 => multiple protein sequences => multimer
 if (( "$n_lines" <= 2 )); then
     echo "  Protein type:              monomer"
-    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 "
+    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 "$'\n'
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
-    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"
+    OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"$'\n'
+    if (( "$REDUCED_DBS" == True )); then
+        OPTIONS+="--num_multimer_predictions_per_model=1 \\"$'\n'
+    fi
+fi
+
+if (( "$REDUCED_DBS" == True )); then
+    OPTIONS+="--db_preset=reduced_dbs \\"$'\n'
+    OPTIONS+="--small_bfd_database_path=\$DATA_DIR/small_bfd/bfd-first_non_consensus_sequences.fasta \\"$'\n'
+else
+    OPTIONS+="--db_preset=full_dbs \\"$'\n'
+    OPTIONS+="--bfd_database_path=\$DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \\"$'\n'
+    OPTIONS+="--uniclust30_database_path=\$DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \\"$'\n'
 fi
 
 if (( "$SKIP_MINIMIZATION" == True )); then
-    OPTIONS+="--run_relax=False --use_gpu_relax=False \\"
+    OPTIONS+="--run_relax=False --use_gpu_relax=False \\"$'\n'
 else
-    OPTIONS+="--run_relax=True --use_gpu_relax=True \\"
+    OPTIONS+="--run_relax=True --use_gpu_relax=True \\"$'\n'
 fi
 
 if (( "$REDUCED_RSYNC" == True )); then
@@ -214,9 +232,7 @@ python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --data_dir=\$DATA_DIR \\
 --output_dir=\$OUTPUT_DIR \\
 --max_template_date="$MAX_TEMPLATE_DATE" \\
---bfd_database_path=\$DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \\
 --uniref90_database_path=\$DATA_DIR/uniref90/uniref90.fasta \\
---uniclust30_database_path=\$DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \\
 --mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
 --template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
