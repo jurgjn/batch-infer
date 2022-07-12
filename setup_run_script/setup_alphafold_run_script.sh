@@ -15,8 +15,10 @@ print_help()
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
    echo "-w                     working directory"
+   echo "--reduced_dbs          use settings with reduced hardware requirements"
    echo "--max_template_date    format: "
    echo "--skip_minimization    no Amber minimization will be performed"
+   echo "--reduced_rsync        skip copying large output files (MSAs, .pkl-files) from temporary storage on the compute node"
    echo
 }
 
@@ -94,7 +96,7 @@ echo "  Number of sequences:       $((n_lines/2))"
 # If n_lines > 2 => multiple protein sequences => multimer
 if (( "$n_lines" <= 2 )); then
     echo "  Protein type:              monomer"
-    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 "$'\n'
+    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\"$'\n'
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
     OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"$'\n'
@@ -236,8 +238,7 @@ python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
 --template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
---fasta_paths=$FASTAFILE \\
-$OPTIONS
+$OPTIONS --fasta_paths=$FASTAFILE
 
 # Disable CUDA multi-process service
 #echo quit | nvidia-cuda-mps-control
