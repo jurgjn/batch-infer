@@ -22,13 +22,11 @@ print_help()
    echo
 }
 
-
 # Print help if not options are provided
 if [[ $# -eq 0 ]];then
     print_help
     exit 1
 fi
-
 
 # Parse in arguments
 while [[ $# -gt 0 ]]; do
@@ -85,8 +83,6 @@ while [[ $# -gt 0 ]]; do
           exit 1
     esac
 done
-
-
 
 # Count the number of lines in the fastafile
 n_lines=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | grep -cve '^\s*$')
@@ -203,7 +199,7 @@ echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
 ########################################
 
 mkdir -p $WORKDIR
-RUNSCRIPT=$WORKDIR/"run_alphafold.bsub"
+RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
 echo -e "  Output an LSF run script for AlphaFold2: $RUNSCRIPT"
 
 cat <<EOF > $RUNSCRIPT
@@ -213,7 +209,9 @@ cat <<EOF > $RUNSCRIPT
 #BSUB -R "rusage[mem=$((TOTAL_CPU_MEM_MB/NCPUS)), scratch=$((TOTAL_SCRATCH_MB/NCPUS))]"
 #BSUB -R "rusage[ngpus_excl_p=$NGPUS] select[gpu_mtotal0>=$GPU_MEM_MB]"
 #BSUB -R "span[hosts=1]"
-#BSUB -J alphafold
+#BSUB -J af2_$PROTEIN
+#BSUB -e $WORKDIR/$PROTEIN.err.txt
+#BSUB -o $WORKDIR/$PROTEIN.out.txt
 
 source /cluster/apps/local/env2lmod.sh
 module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
@@ -243,8 +241,9 @@ $OPTIONS --fasta_paths=$FASTAFILE
 # Disable CUDA multi-process service
 #echo quit | nvidia-cuda-mps-control
 
-mkdir -p output/$PROTEIN
-rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
+rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
+
+touch $WORKDIR/$PROTEIN.done
 
 EOF
 
