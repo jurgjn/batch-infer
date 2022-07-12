@@ -10,7 +10,7 @@ print_help()
    # Display Help
    echo "Script to create input file for AlphaFold2 on Euler."
    echo
-   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--skip_minimization]"
+   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--skip_minimization] [--reduced_rsync]"
    echo "options:"
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
@@ -67,6 +67,11 @@ while [[ $# -gt 0 ]]; do
           SKIP_MINIMIZATION=True
 	  shift;
 	  ;;
+	--reduced_rsync)
+	  # Skip copying large results files (MSAs, pickles) from the compute nodes
+          REDUCED_RSYNC=True
+	  shift;
+	  ;;
         * )
           print_help
           exit 1
@@ -93,6 +98,12 @@ if (( "$SKIP_MINIMIZATION" == True )); then
     OPTIONS+="--run_relax=False --use_gpu_relax=False \\"
 else
     OPTIONS+="--run_relax=True --use_gpu_relax=True \\"
+fi
+
+if (( "$REDUCED_RSYNC" == True )); then
+    RSYNC_OPTIONS="--exclude msas/ --exclude '*.pkl' "
+else
+    RSYNC_OPTIONS=""
 fi
 
 # Determine the sequence length
@@ -216,7 +227,7 @@ $OPTIONS
 #echo quit | nvidia-cuda-mps-control
 
 mkdir -p output/$PROTEIN
-rsync -av \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
+rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN ./output/$PROTEIN
 
 EOF
 
