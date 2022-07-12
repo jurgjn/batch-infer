@@ -76,7 +76,7 @@ done
 
 
 # Count the number of lines in the fastafile
-n_lines=$(grep -cve '^\s*$' $FASTAFILE)
+n_lines=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | grep -cve '^\s*$')
 echo "  Number of sequences:       $((n_lines/2))"
 # Determine if the protein is a monomer or multimer
 # If n_lines = 2 => 1 protein sequence => monomer
@@ -92,8 +92,8 @@ fi
 # Determine the sequence length
 # The required total GPU mem depends on the sum of the number of amino acids
 # The required total CPU mem depends on the max of the number of amino acids
-sum_aa=$(awk ' { getline aa; sum+=length(aa); } END { print sum } ' $FASTAFILE)
-max_aa=$(awk ' BEGIN {max=0} { getline aa; if (length(aa) > max) {max=length(aa)}} END { print max } ' $FASTAFILE)
+sum_aa=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | awk ' { getline aa; sum+=length(aa); } END { print sum } ')
+max_aa=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | awk ' BEGIN {max=0} { getline aa; if (length(aa) > max) {max=length(aa)}} END { print max } ')
 echo "  Number of amino acids:"
 echo "                    sum:     $sum_aa"
 echo "                    max:     $max_aa"
