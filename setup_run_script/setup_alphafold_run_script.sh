@@ -31,11 +31,11 @@ fi
 # Parse in arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-	 -h|--help)                                                                                                                                                                                               
-          # Print help and exit                                                                                                                                                                                   
-          print_help                                                                                                                                                                                              
+	 -h|--help)
+          # Print help and exit
+          print_help
           exit
-	  ;; 
+	  ;;
         -f|--fastafile)
           # Get absolute path
           FASTAFILE=$(readlink -m $2)
@@ -99,7 +99,7 @@ echo "                    sum:     $sum_aa"
 echo "                    max:     $max_aa"
 
 # Estimate the required computing resources
-# For simplicity, the two types of GPUs users could select are RTX 2080 Ti with 11GB GPU mem (GPU_MEM_MB>=10240) 
+# For simplicity, the two types of GPUs users could select are RTX 2080 Ti with 11GB GPU mem (GPU_MEM_MB>=10240)
 # and TITAN RTX with 24GB GPU mem (GPU_MEM_MB >= 20480)
 if (( "$sum_aa" < 200 )); then
     RUNTIME="04:00"
@@ -153,7 +153,7 @@ elif (( "$sum_aa" >= 3500 )); then
     MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
 fi
 
-echo -e "    Estimate required resources: " 
+echo -e "    Estimate required resources: "
 echo -e "    Run time:            " $RUNTIME
 echo -e "    Number of CPUs:      " $NCPUS
 echo -e "    Total CPU memory:    " $TOTAL_CPU_MEM_MB
@@ -169,7 +169,7 @@ mkdir -p $WORKDIR
 RUNSCRIPT=$WORKDIR/"run_alphafold.bsub"
 echo -e "  Output an LSF run script for AlphaFold2: $RUNSCRIPT"
 
-cat <<EOF > $RUNSCRIPT  
+cat <<EOF > $RUNSCRIPT
 #!/usr/bin/bash
 #BSUB -n $NCPUS
 #BSUB -W $RUNTIME
