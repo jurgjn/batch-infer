@@ -28,6 +28,10 @@ if [[ $# -eq 0 ]];then
     exit 1
 fi
 
+REDUCED_DBS=False
+SKIP_MINIMIZATION=False
+REDUCED_RSYNC=False
+
 # Parse in arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
