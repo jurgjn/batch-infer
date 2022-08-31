@@ -105,7 +105,7 @@ elif (( "$n_lines" > 2 )); then
     fi
 fi
 
-if (( "$REDUCED_DBS" == True )); then
+if (( "$REDUCED_DBS" = True )); then
     OPTIONS+="--db_preset=reduced_dbs \\"$'\n'
     OPTIONS+="--small_bfd_database_path=\$DATA_DIR/small_bfd/bfd-first_non_consensus_sequences.fasta \\"$'\n'
 else
@@ -114,13 +114,13 @@ else
     OPTIONS+="--uniclust30_database_path=\$DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \\"$'\n'
 fi
 
-if (( "$SKIP_MINIMIZATION" == True )); then
+if (( "$SKIP_MINIMIZATION" = True )); then
     OPTIONS+="--run_relax=False --use_gpu_relax=False \\"$'\n'
 else
     OPTIONS+="--run_relax=True --use_gpu_relax=True \\"$'\n'
 fi
 
-if (( "$REDUCED_RSYNC" == True )); then
+if (( "$REDUCED_RSYNC" = True )); then
     RSYNC_OPTIONS="--exclude msas/ --exclude '*.pkl' "
 else
     RSYNC_OPTIONS=""
