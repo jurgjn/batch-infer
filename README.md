@@ -28,3 +28,9 @@ Example:
     Total scratch space: 
   Output an LSF run script for AlphaFold2: /cluster/scratch/jarunanp/21_12_alphafold_benchmark/scripts/alphafold_on_euler/run_alphafold.bsub
 ```
+
+## Postprocessing
+
+This script includes a postprocessing step using
+[gitlab.ethz.ch/sis/alphafold-postprocessing](https://gitlab.ethz.ch/sis/alphafold-postprocessing).
+It will generate a `plot` directory with some plots.

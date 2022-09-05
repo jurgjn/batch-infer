@@ -242,6 +242,12 @@ python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
 $OPTIONS --fasta_paths=$FASTAFILE
 
+# Produce some plots using the postprocessing script from
+# https://gitlab.ethz.ch/sis/alphafold-postprocessing
+# :
+module load gcc/6.3.0 alphafold-postprocessing
+postprocessing.py -o \${OUTPUT_DIR}/plots \$OUTPUT_DIR/$PROTEIN
+
 # Disable CUDA multi-process service
 #echo quit | nvidia-cuda-mps-control
 
@@ -250,7 +256,3 @@ rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 touch $WORKDIR/$PROTEIN.done
 
 EOF
-
-#env2lmod
-#module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.1.1
-#alphafold_init
