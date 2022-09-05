@@ -256,7 +256,3 @@ rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 touch $WORKDIR/$PROTEIN.done
 
 EOF
-
-#env2lmod
-#module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.1.1
-#alphafold_init
