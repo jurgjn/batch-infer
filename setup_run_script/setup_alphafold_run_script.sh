@@ -4,16 +4,19 @@
 FASTAFILE="undefined.fasta"
 WORKDIR=$PWD
 MAX_TEMPLATE_DATE=$(date +'%Y-%m-%d')
+BATCH_SYS="LSF"
 
 print_help()
 {
    # Display Help
    echo "Script to create input file for AlphaFold2 on Euler."
    echo
-   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync]"
+   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync] [-b LSF/SLURM]"
    echo "options:"
+   echo "-b                     choice of the batch system for AlphaFold2 job submission [LSF/SLURM]"
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
+   echo "-s                     shareholder group for the use of GPUs. Mandatory for the submissions of scripts with SLURM"
    echo "-w                     working directory"
    echo "--reduced_dbs          use settings with reduced hardware requirements"
    echo "--max_template_date    format: "
@@ -55,6 +58,19 @@ while [[ $# -gt 0 ]]; do
           # Users can specify a work directory, e.g., $SCRATCH/alphafold_tests
           # Otherwise it will use the current directy as a work directory
           WORKDIR="$2"
+          shift;
+          shift;
+          ;;
+        -b|--batch_sys)
+          # Users can specify the batch system to submit their job
+          # LSF is the default batch system
+          BATCH_SYS="$2"
+          shift;
+          shift;
+          ;;
+        -s|--shareholder)
+          # For the submission of SLURM jobs, the shareholder group is mandatory
+          SHAREHOLDER_GROUP="$2"
           shift;
           shift;
           ;;
@@ -202,11 +218,14 @@ echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
 # Output an LSF run script for AlphaFold
 ########################################
 
-mkdir -p $WORKDIR
-RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
-echo -e "  Output an LSF run script for AlphaFold2: $RUNSCRIPT"
+if [[ $BATCH_SYS = "LSF" ]]
+then
+    echo "Printing the LSF script in the work directory"
+    mkdir -p $WORKDIR
+    RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
+    echo -e "  Output a LSF run script for AlphaFold2: $RUNSCRIPT"
 
-cat <<EOF > $RUNSCRIPT
+    cat <<EOF > $RUNSCRIPT
 #!/usr/bin/bash
 #BSUB -n $NCPUS
 #BSUB -W $RUNTIME
@@ -256,3 +275,71 @@ rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 touch $WORKDIR/$PROTEIN.done
 
 EOF
+
+
+##########################################
+# Output a SLURM run script for AlphaFold
+##########################################
+
+else 
+
+    mkdir -p $WORKDIR
+    RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
+    echo -e "  Output a SLURM run script for AlphaFold2: $RUNSCRIPT"
+
+    RUNTIME="${RUNTIME}":00" "
+
+    cat <<EOF > $RUNSCRIPT
+#!/usr/bin/bash
+#SBATCH -n $NCPUS
+#SBATCH --time=$RUNTIME
+#SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
+#SBATCH --ntasks-per-node=$NCPUS
+#SBATCH -G $NGPUS
+#SBATCH --gres=gpumem:$GPU_MEM_MB
+#SBATCH --tmp=$TOTAL_SCRATCH_MB
+#SBATCH -A $SHAREHOLDER_GROUP
+#SBATCH -J af2_$PROTEIN
+#SBATCH -e $WORKDIR/$PROTEIN.err.txt
+#SBATCH -o $WORKDIR/$PROTEIN.out.txt
+
+source /cluster/apps/local/env2lmod.sh
+module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
+source /cluster/apps/nss/alphafold/venv_alphafold/bin/activate
+
+# Define paths to databases and output directory
+DATA_DIR=/cluster/project/alphafold
+OUTPUT_DIR=\${TMPDIR}/output
+
+# Activate unified memory
+export TF_FORCE_UNIFIED_MEMORY=$ENABLE_UNIFIED_MEMORY
+export XLA_PYTHON_CLIENT_MEM_FRACTION=${MEM_FRACTION}.0
+
+# If use_gpu_relax is enabled, enable CUDA multi-process service. Uncomment the line below
+#nvidia-cuda-mps-control -d
+
+python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
+--data_dir=\$DATA_DIR \\
+--output_dir=\$OUTPUT_DIR \\
+--max_template_date="$MAX_TEMPLATE_DATE" \\
+--uniref90_database_path=\$DATA_DIR/uniref90/uniref90.fasta \\
+--mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
+--template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
+--obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
+$OPTIONS --fasta_paths=$FASTAFILE
+
+# Produce some plots using the postprocessing script from
+# https://gitlab.ethz.ch/sis/alphafold-postprocessing
+# :
+module load gcc/6.3.0 alphafold-postprocessing
+postprocessing.py -o \${OUTPUT_DIR}/plots \$OUTPUT_DIR/$PROTEIN
+
+# Disable CUDA multi-process service
+#echo quit | nvidia-cuda-mps-control
+
+rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
+
+touch $WORKDIR/$PROTEIN.done
+
+EOF
+fi
