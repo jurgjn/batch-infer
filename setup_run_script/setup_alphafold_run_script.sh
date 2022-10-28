@@ -23,6 +23,7 @@ print_help()
    echo "--skip_minimization    no Amber minimization will be performed"
    echo "--reduced_rsync        skip copying large output files (MSAs, .pkl-files) from temporary storage on the compute node"
    echo
+   exit 1
 }
 
 # Print help if not options are provided
@@ -45,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 	  ;;
         -f|--fastafile)
           # Get absolute path
-          FASTAFILE=$(readlink -m $2)
+          FASTAFILE=$(readlink -f $2)
           # Get the protein name
           fastaname=$(basename -- "$FASTAFILE")
           PROTEIN="${fastaname%.*}"
@@ -103,6 +104,15 @@ while [[ $# -gt 0 ]]; do
           exit 1
     esac
 done
+
+
+if [[ $BATCH_SYS = "SLURM" &&  $SHAREHOLDER_GROUP = "" ]]; then
+        echo
+        echo -e "Please provide your shareholder group with the -s option"
+        echo -e "This parameter is mandatory when requesting GPUs with SLURM"
+        echo
+        print_help
+fi
 
 # Count the number of lines in the fastafile
 n_lines=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | grep -cve '^\s*$')
