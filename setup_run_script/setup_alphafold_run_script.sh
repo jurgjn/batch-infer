@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 # Initialize variables
 FASTAFILE="undefined.fasta"
@@ -315,8 +315,6 @@ OUTPUT_DIR=\${TMPDIR}/output
 export TF_FORCE_UNIFIED_MEMORY=$ENABLE_UNIFIED_MEMORY
 export XLA_PYTHON_CLIENT_MEM_FRACTION=${MEM_FRACTION}.0
 
-# If use_gpu_relax is enabled, enable CUDA multi-process service. Uncomment the line below
-#nvidia-cuda-mps-control -d
 
 python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
 --data_dir=\$DATA_DIR \\
@@ -334,8 +332,6 @@ $OPTIONS --fasta_paths=$FASTAFILE
 module load gcc/6.3.0 alphafold-postprocessing
 postprocessing.py -o \${OUTPUT_DIR}/plots \$OUTPUT_DIR/$PROTEIN
 
-# Disable CUDA multi-process service
-#echo quit | nvidia-cuda-mps-control
 
 rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 
