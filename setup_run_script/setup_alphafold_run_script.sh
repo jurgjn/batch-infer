@@ -110,6 +110,7 @@ if [[ $BATCH_SYS = "SLURM" &&  $SHAREHOLDER_GROUP = "" ]]; then
         echo
         echo -e "Please provide your shareholder group with the -s option"
         echo -e "This parameter is mandatory when requesting GPUs with SLURM"
+        echo -e "You can display all the groups you are a part of on Euler using the my_share_info command"
         echo
         print_help
 fi
@@ -228,8 +229,9 @@ echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
 # Output an LSF run script for AlphaFold
 ########################################
 
-if [[ $BATCH_SYS = "LSF" ]]
-then
+case $BATCH_SYS in
+    "LSF" )
+
     echo "Printing the LSF script in the work directory"
     mkdir -p $WORKDIR
     RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
@@ -287,14 +289,10 @@ touch $WORKDIR/$PROTEIN.done
 EOF
 
 
-##########################################
-# Output a SLURM run script for AlphaFold
-##########################################
-
-else 
-
+        ;;
+    "SLURM")
     mkdir -p $WORKDIR
-    RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
+    RUNSCRIPT=$WORKDIR/"$PROTEIN.sbatch"
     echo -e "  Output a SLURM run script for AlphaFold2: $RUNSCRIPT"
 
     RUNTIME="${RUNTIME}":00" "
@@ -305,6 +303,7 @@ else
 #SBATCH --time=$RUNTIME
 #SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
 #SBATCH --ntasks-per-node=$NCPUS
+#SBATCH --nodes=1
 #SBATCH -G $NGPUS
 #SBATCH --gres=gpumem:$GPU_MEM_MB
 #SBATCH --tmp=$TOTAL_SCRATCH_MB
@@ -348,4 +347,14 @@ rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 touch $WORKDIR/$PROTEIN.done
 
 EOF
-fi
+
+        ;;
+    *)
+echo
+echo "Unknown option " $BATCH_SYS " for the batch system"
+echo "Please choose either LSF or SLURM (all caps) for the batch system option"
+print_help
+    ;;
+
+esac
+
