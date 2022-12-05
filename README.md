@@ -5,7 +5,7 @@ This project is to create a script to help users estimate the computing resource
 Usage:
 
 ```
-./setup_alphafold_run_script.sh -f [Fasta file] -w [work directory] --max_template_date yyyy-mm-dd
+./setup_alphafold_run_script.sh -f [Fasta file] -w [work directory] --max_template_date yyyy-mm-dd -b [LSF/SLURM]
 ```
 
 Example:
