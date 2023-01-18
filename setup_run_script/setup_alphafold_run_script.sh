@@ -299,10 +299,9 @@ EOF
 
     cat <<EOF > $RUNSCRIPT
 #!/usr/bin/bash
-#SBATCH -n $NCPUS
+#SBATCH --ntasks $NCPUS
 #SBATCH --time=$RUNTIME
 #SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
-#SBATCH --ntasks-per-node=$NCPUS
 #SBATCH --nodes=1
 #SBATCH -G $NGPUS
 #SBATCH --gres=gpumem:$GPU_MEM_MB
