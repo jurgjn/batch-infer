@@ -299,7 +299,7 @@ EOF
 
     cat <<EOF > $RUNSCRIPT
 #!/usr/bin/bash
-#SBATCH --ntasks $NCPUS
+#SBATCH -n $NCPUS
 #SBATCH --time=$RUNTIME
 #SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
 #SBATCH --nodes=1
