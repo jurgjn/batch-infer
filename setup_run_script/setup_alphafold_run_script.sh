@@ -13,7 +13,6 @@ print_help()
    echo
    echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync] [-b LSF/SLURM]"
    echo "options:"
-   echo "-b                     choice of the batch system for AlphaFold2 job submission [LSF/SLURM]"
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
    echo "-s                     shareholder group for the use of GPUs. Mandatory for the submissions of scripts with SLURM"
@@ -59,13 +58,6 @@ while [[ $# -gt 0 ]]; do
           # Users can specify a work directory, e.g., $SCRATCH/alphafold_tests
           # Otherwise it will use the current directy as a work directory
           WORKDIR="$2"
-          shift;
-          shift;
-          ;;
-        -b|--batch_sys)
-          # Users can specify the batch system to submit their job
-          # LSF is the default batch system
-          BATCH_SYS="$2"
           shift;
           shift;
           ;;
@@ -123,7 +115,7 @@ echo "  Number of sequences:       $((n_lines/2))"
 # If n_lines > 2 => multiple protein sequences => multimer
 if (( "$n_lines" <= 2 )); then
     echo "  Protein type:              monomer"
-    OPTIONS="--pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\"$'\n'
+    OPTIONS="--model_preset=monomer --pdb70_database_path=\$DATA_DIR/pdb70/pdb70 \\"$'\n'
 elif (( "$n_lines" > 2 )); then
     echo "  Protein type:              multimer"
     OPTIONS="--model_preset=multimer --pdb_seqres_database_path=\$DATA_DIR/pdb_seqres/pdb_seqres.txt --uniprot_database_path=\$DATA_DIR/uniprot/uniprot.fasta \\"$'\n'
@@ -138,7 +130,7 @@ if [ "$REDUCED_DBS" = True ]; then
 else
     OPTIONS+="--db_preset=full_dbs \\"$'\n'
     OPTIONS+="--bfd_database_path=\$DATA_DIR/bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt \\"$'\n'
-    OPTIONS+="--uniclust30_database_path=\$DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \\"$'\n'
+    OPTIONS+="--uniref30_database_path=\$DATA_DIR/uniclust30/uniclust30_2018_08/uniclust30_2018_08 \\"$'\n'
 fi
 
 if [ "$SKIP_MINIMIZATION" = True ]; then
@@ -163,12 +155,10 @@ echo "                    sum:     $sum_aa"
 echo "                    max:     $max_aa"
 
 # Estimate the required computing resources
-# For simplicity, the two types of GPUs users could select are RTX 2080 Ti with 11GB GPU mem (GPU_MEM_MB>=10240)
-# and TITAN RTX with 24GB GPU mem (GPU_MEM_MB >= 20480)
+NCPUS=8
+NGPUS=1
 if (( "$sum_aa" < 200 )); then
     RUNTIME="04:00"
-    NCPUS=12
-    NGPUS=1
     GPU_MEM_MB=10240
     TOTAL_GPU_MEM_MB=10240
     TOTAL_CPU_MEM_MB=120000
@@ -177,8 +167,6 @@ if (( "$sum_aa" < 200 )); then
     MEM_FRACTION=1
 elif (( "$sum_aa" >= 200 )) && (( "$sum_aa" < 1500 )); then
     RUNTIME="24:00"
-    NCPUS=12
-    NGPUS=1
     GPU_MEM_MB=10240
     TOTAL_GPU_MEM_MB=20480
     TOTAL_CPU_MEM_MB=120000
@@ -187,8 +175,6 @@ elif (( "$sum_aa" >= 200 )) && (( "$sum_aa" < 1500 )); then
     MEM_FRACTION=2
 elif (( "$sum_aa" >= 1500 )) && (( "$sum_aa" < 2500 )); then
     RUNTIME="24:00"
-    NCPUS=24
-    NGPUS=1
     GPU_MEM_MB=20480
     TOTAL_GPU_MEM_MB=81920
     TOTAL_CPU_MEM_MB=240000
@@ -197,8 +183,6 @@ elif (( "$sum_aa" >= 1500 )) && (( "$sum_aa" < 2500 )); then
     MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
 elif (( "$sum_aa" >= 2500 )) && (( "$sum_aa" < 3500 )); then
     RUNTIME="48:00"
-    NCPUS=48
-    NGPUS=1
     GPU_MEM_MB=20480
     TOTAL_GPU_MEM_MB=81920
     TOTAL_CPU_MEM_MB=480000
@@ -207,8 +191,6 @@ elif (( "$sum_aa" >= 2500 )) && (( "$sum_aa" < 3500 )); then
     MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
 elif (( "$sum_aa" >= 3500 )); then
     RUNTIME="120:00"
-    NCPUS=64
-    NGPUS=1
     GPU_MEM_MB=20480
     TOTAL_GPU_MEM_MB=163840
     TOTAL_CPU_MEM_MB=640000
@@ -217,87 +199,25 @@ elif (( "$sum_aa" >= 3500 )); then
     MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
 fi
 
-echo -e "    Estimate required resources: "
+echo -e "    Estimate required resources, please do not hesitate to adjust if required: "
 echo -e "    Run time:            " $RUNTIME
 echo -e "    Number of CPUs:      " $NCPUS
 echo -e "    Total CPU memory:    " $TOTAL_CPU_MEM_MB
 echo -e "    Number of GPUs:      " $NGPUS
-echo -e "    Total GPU memory:    " $TOTAL_GPU_MEM_MB
+echo -e "    Total GPU memory:    " $GPU_MEM_MB
 echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
 
 ########################################
-# Output an LSF run script for AlphaFold
+# Output an SLURM run script for AlphaFold
 ########################################
 
-case $BATCH_SYS in
-    "LSF" )
+mkdir -p $WORKDIR
+RUNSCRIPT=$WORKDIR/"$PROTEIN.sbatch"
+echo -e "  Output a SLURM run script for AlphaFold2: $RUNSCRIPT"
 
-    echo "Printing the LSF script in the work directory"
-    mkdir -p $WORKDIR
-    RUNSCRIPT=$WORKDIR/"$PROTEIN.bsub"
-    echo -e "  Output a LSF run script for AlphaFold2: $RUNSCRIPT"
+RUNTIME="${RUNTIME}":00" "
 
-    cat <<EOF > $RUNSCRIPT
-#!/usr/bin/bash
-#BSUB -n $NCPUS
-#BSUB -W $RUNTIME
-#BSUB -R "rusage[mem=$((TOTAL_CPU_MEM_MB/NCPUS)), scratch=$((TOTAL_SCRATCH_MB/NCPUS))]"
-#BSUB -R "rusage[ngpus_excl_p=$NGPUS] select[gpu_mtotal0>=$GPU_MEM_MB]"
-#BSUB -R "span[hosts=1]"
-#BSUB -J af2_$PROTEIN
-#BSUB -e $WORKDIR/$PROTEIN.err.txt
-#BSUB -o $WORKDIR/$PROTEIN.out.txt
-
-source /cluster/apps/local/env2lmod.sh
-module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
-source /cluster/apps/nss/alphafold/venv_alphafold/bin/activate
-
-# Define paths to databases and out put directory
-DATA_DIR=/cluster/project/alphafold
-OUTPUT_DIR=\${TMPDIR}/output
-
-# Activate unified memory
-export TF_FORCE_UNIFIED_MEMORY=$ENABLE_UNIFIED_MEMORY
-export XLA_PYTHON_CLIENT_MEM_FRACTION=${MEM_FRACTION}.0
-
-# If use_gpu_relax is enabled, enable CUDA multi-process service. Uncomment the line below
-#nvidia-cuda-mps-control -d
-
-python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
---data_dir=\$DATA_DIR \\
---output_dir=\$OUTPUT_DIR \\
---max_template_date="$MAX_TEMPLATE_DATE" \\
---uniref90_database_path=\$DATA_DIR/uniref90/uniref90.fasta \\
---mgnify_database_path=\$DATA_DIR/mgnify/mgy_clusters_2018_12.fa \\
---template_mmcif_dir=\$DATA_DIR/pdb_mmcif/mmcif_files \\
---obsolete_pdbs_path=\$DATA_DIR/pdb_mmcif/obsolete.dat \\
-$OPTIONS --fasta_paths=$FASTAFILE
-
-# Produce some plots using the postprocessing script from
-# https://gitlab.ethz.ch/sis/alphafold-postprocessing
-# :
-module load gcc/6.3.0 alphafold-postprocessing
-postprocessing.py -o \${OUTPUT_DIR}/plots \$OUTPUT_DIR/$PROTEIN
-
-# Disable CUDA multi-process service
-#echo quit | nvidia-cuda-mps-control
-
-rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
-
-touch $WORKDIR/$PROTEIN.done
-
-EOF
-
-
-        ;;
-    "SLURM")
-    mkdir -p $WORKDIR
-    RUNSCRIPT=$WORKDIR/"$PROTEIN.sbatch"
-    echo -e "  Output a SLURM run script for AlphaFold2: $RUNSCRIPT"
-
-    RUNTIME="${RUNTIME}":00" "
-
-    cat <<EOF > $RUNSCRIPT
+cat <<EOF > $RUNSCRIPT
 #!/usr/bin/bash
 #SBATCH -n $NCPUS
 #SBATCH --time=$RUNTIME
@@ -313,8 +233,8 @@ EOF
 #SBATCH -o $WORKDIR/$PROTEIN.out.txt
 
 source /cluster/apps/local/env2lmod.sh
-module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.2.0
-source /cluster/apps/nss/alphafold/venv_alphafold/bin/activate
+module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.3.1
+source /cluster/apps/nss/alphafold/venv_alphafold_2.3.1/bin/activate
 
 # Define paths to databases and output directory
 DATA_DIR=/cluster/project/alphafold
@@ -325,7 +245,7 @@ export TF_FORCE_UNIFIED_MEMORY=$ENABLE_UNIFIED_MEMORY
 export XLA_PYTHON_CLIENT_MEM_FRACTION=${MEM_FRACTION}.0
 
 
-python /cluster/apps/nss/alphafold/alphafold-2.2.0/run_alphafold.py \\
+python /cluster/apps/nss/alphafold/alphafold-2.3.1/run_alphafold.py \\
 --data_dir=\$DATA_DIR \\
 --output_dir=\$OUTPUT_DIR \\
 --max_template_date="$MAX_TEMPLATE_DATE" \\
@@ -347,14 +267,3 @@ rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 touch $WORKDIR/$PROTEIN.done
 
 EOF
-
-        ;;
-    *)
-echo
-echo "Unknown option " $BATCH_SYS " for the batch system"
-echo "Please choose either LSF or SLURM (all caps) for the batch system option"
-print_help
-    ;;
-
-esac
-
