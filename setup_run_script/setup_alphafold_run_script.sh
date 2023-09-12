@@ -241,15 +241,14 @@ cat <<EOF > $RUNSCRIPT
 #SBATCH -n $NCPUS
 #SBATCH --time=$RUNTIME
 #SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
-#SBATCH --ntasks-per-node=$NCPUS
 #SBATCH --nodes=1
 #SBATCH -G $NGPUS
 #SBATCH --gres=gpumem:$GPU_MEM_MB
 #SBATCH --tmp=$TOTAL_SCRATCH_MB
 #SBATCH -A $SHAREHOLDER_GROUP
 #SBATCH -J af2_$PROTEIN
-#SBATCH -e $WORKDIR/$PROTEIN.err.txt
-#SBATCH -o $WORKDIR/$PROTEIN.out.txt
+#SBATCH -e $WORKDIR/$PROTEIN.%j.err.txt
+#SBATCH -o $WORKDIR/$PROTEIN.%j.out.txt
 
 source /cluster/apps/local/env2lmod.sh
 module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.3.1
@@ -279,7 +278,7 @@ $OPTIONS --fasta_paths=$FASTAFILE
 # https://gitlab.ethz.ch/sis/alphafold-postprocessing
 # :
 
-python -u /cluster/apps/nss/alphafold/alphafold-postprocessing/1.0.0/bin/postprocessing.py -o $OUTPUT_DIR/$PROTEIN/plots $OUTPUT_DIR/$PROTEIN
+python -u /cluster/apps/nss/alphafold/alphafold-postprocessing/1.0.0/bin/postprocessing.py -o \$OUTPUT_DIR/$PROTEIN/plots \$OUTPUT_DIR/$PROTEIN
 
 rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 
