@@ -10,8 +10,8 @@ print_help()
 {
    # Display Help
    echo "Script to create input file for AlphaFold2 on Euler. This script poroposes the resources that could be used for a given protein length."
-   echo "We would advise to keep the core number set to 8, as our scaling tests did not show any improvements in runtime with an increased number of cores."
-   echo "However, if you have a better estimation for the runtime, memory and other, please feel free to modify the script to fit your ideal requirements." 
+   echo "We would advise to keep the number of cores set to 8, as our scaling tests did not show any improvements in runtime with an increased number of cores."
+   echo "However, if you have a better estimation for the runtime, memory and other resources/parameters, please feel free to modify the script to fit your requirements." 
    echo
    echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync]"
    echo "options:"
@@ -112,6 +112,7 @@ fi
 # Count the number of lines in the fastafile
 n_lines=$(cat $FASTAFILE | awk '{if(NR==1) {print $0} else {if($0 ~ /^>/) {print "\n"$0} else {printf $0}}}' | grep -cve '^\s*$')
 echo "  Number of sequences:       $((n_lines/2))"
+
 # Determine if the protein is a monomer or multimer
 # If n_lines = 2 => 1 protein sequence => monomer
 # If n_lines > 2 => multiple protein sequences => multimer
@@ -161,46 +162,61 @@ NCPUS=8
 NGPUS=1
 if (( "$sum_aa" < 200 )); then
     RUNTIME="04:00"
+    
     GPU_MEM_MB=10240
-    TOTAL_GPU_MEM_MB=10240
-    TOTAL_CPU_MEM_MB=120000
+    
+    TOTAL_CPU_MEM_MB=240000
     TOTAL_SCRATCH_MB=120000
+
     ENABLE_UNIFIED_MEMORY=0
     MEM_FRACTION=1
+
 elif (( "$sum_aa" >= 200 )) && (( "$sum_aa" < 1500 )); then
     RUNTIME="24:00"
-    GPU_MEM_MB=10240
-    TOTAL_GPU_MEM_MB=20480
-    TOTAL_CPU_MEM_MB=120000
+    
+    GPU_MEM_MB=20240
+    
+    TOTAL_CPU_MEM_MB=240000
     TOTAL_SCRATCH_MB=120000
+
     ENABLE_UNIFIED_MEMORY=1
     MEM_FRACTION=2
+
 elif (( "$sum_aa" >= 1500 )) && (( "$sum_aa" < 2500 )); then
     RUNTIME="24:00"
-    GPU_MEM_MB=20480
-    TOTAL_GPU_MEM_MB=81920
+
+    GPU_MEM_MB=40000
+    
     TOTAL_CPU_MEM_MB=240000
     TOTAL_SCRATCH_MB=240000
+
     ENABLE_UNIFIED_MEMORY=1
-    MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
+    MEM_FRACTION=4
+
 elif (( "$sum_aa" >= 2500 )) && (( "$sum_aa" < 3500 )); then
     RUNTIME="48:00"
-    GPU_MEM_MB=20480
-    TOTAL_GPU_MEM_MB=81920
-    TOTAL_CPU_MEM_MB=480000
+
+    GPU_MEM_MB=80000
+
+    TOTAL_CPU_MEM_MB=240000
     TOTAL_SCRATCH_MB=240000
+    
     ENABLE_UNIFIED_MEMORY=1
-    MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
+    MEM_FRACTION=4
+
 elif (( "$sum_aa" >= 3500 )); then
     RUNTIME="120:00"
-    GPU_MEM_MB=20480
-    TOTAL_GPU_MEM_MB=163840
-    TOTAL_CPU_MEM_MB=640000
+    
+    GPU_MEM_MB=80000
+    
+    TOTAL_CPU_MEM_MB=240000
     TOTAL_SCRATCH_MB=320000
+
     ENABLE_UNIFIED_MEMORY=1
-    MEM_FRACTION=$((TOTAL_GPU_MEM_MB/GPU_MEM_MB))
+    MEM_FRACTION=8
 fi
 
+echo
 echo -e "    Estimate required resources, please do not hesitate to adjust if required: "
 echo -e "    Run time:            " $RUNTIME
 echo -e "    Number of CPUs:      " $NCPUS
@@ -208,6 +224,7 @@ echo -e "    Total CPU memory:    " $TOTAL_CPU_MEM_MB
 echo -e "    Number of GPUs:      " $NGPUS
 echo -e "    Total GPU memory:    " $GPU_MEM_MB
 echo -e "    Total scratch space: " $TOTAL_SCRATCH_MB
+echo
 
 ########################################
 # Output an SLURM run script for AlphaFold
@@ -236,6 +253,7 @@ cat <<EOF > $RUNSCRIPT
 
 source /cluster/apps/local/env2lmod.sh
 module load gcc/6.3.0 openmpi/4.0.2 alphafold/2.3.1
+module load alphafold-postprocessing
 source /cluster/apps/nss/alphafold/venv_alphafold_2.3.1/bin/activate
 
 # Define paths to databases and output directory
@@ -260,9 +278,8 @@ $OPTIONS --fasta_paths=$FASTAFILE
 # Produce some plots using the postprocessing script from
 # https://gitlab.ethz.ch/sis/alphafold-postprocessing
 # :
-module load gcc/6.3.0 alphafold-postprocessing
-postprocessing.py -o \${OUTPUT_DIR}/plots \$OUTPUT_DIR/$PROTEIN
 
+python -u /cluster/apps/nss/alphafold/alphafold-postprocessing/1.0.0/bin/postprocessing.py -o $OUTPUT_DIR/$PROTEIN/plots $OUTPUT_DIR/$PROTEIN
 
 rsync -av $RSYNC_OPTIONS \$TMPDIR/output/$PROTEIN $WORKDIR
 
