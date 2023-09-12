@@ -4,14 +4,16 @@
 FASTAFILE="undefined.fasta"
 WORKDIR=$PWD
 MAX_TEMPLATE_DATE=$(date +'%Y-%m-%d')
-BATCH_SYS="LSF"
+BATCH_SYS="SLURM"
 
 print_help()
 {
    # Display Help
-   echo "Script to create input file for AlphaFold2 on Euler."
+   echo "Script to create input file for AlphaFold2 on Euler. This script poroposes the resources that could be used for a given protein length."
+   echo "We would advise to keep the core number set to 8, as our scaling tests did not show any improvements in runtime with an increased number of cores."
+   echo "However, if you have a better estimation for the runtime, memory and other, please feel free to modify the script to fit your ideal requirements." 
    echo
-   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync] [-b LSF/SLURM]"
+   echo "Syntax: setup_alphafold_run_script.sh [-f fastafile] [-w working directory] [--max_template_date Y-M-D] [--reduced_dbs] [--skip_minimization] [--reduced_rsync]"
    echo "options:"
    echo "-h                     print help and exit"
    echo "-f                     FASTA filename"
