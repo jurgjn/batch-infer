@@ -5,7 +5,7 @@ This project is to create a script to help users estimate the computing resource
 Usage:
 
 ```
-./setup_alphafold_run_script.sh -f [Fasta file] -w [work directory] --max_template_date yyyy-mm-dd -b [LSF/SLURM]
+./setup_alphafold_run_script.sh -f [Fasta file] -w [work directory] --max_template_date yyyy-mm-dd
 ```
 
 Example:
@@ -26,7 +26,7 @@ Example:
     Number of GPUs: 
     Total GPU memory: 
     Total scratch space: 
-  Output an LSF run script for AlphaFold2: /cluster/scratch/jarunanp/21_12_alphafold_benchmark/scripts/alphafold_on_euler/run_alphafold.bsub
+  Output an SLURM run script for AlphaFold2: /cluster/scratch/jarunanp/21_12_alphafold_benchmark/scripts/alphafold_on_euler/run_alphafold.sbatch
 ```
 
 ## Postprocessing
