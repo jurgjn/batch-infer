@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Script to run Alphafold 2.3.0 using Singularity.
-# Builds the command and executes it, using a Alphafold image hosted on Dockerhub.
+# Builds the command and executes it, using an Alphafold image hosted on Dockerhub.
 #
 # Author: Diego Alvarez S. [dialvarezs@gmail.com]
 # Last modified: 2022-12-13
@@ -141,11 +141,13 @@ def main_singularity_cmd(args):
         *command_args,
     ]
 
-    print("Executing: " + " ".join(command))
+
+    #print("Executing: " + " ".join(command))
 
     #p = subprocess.run(command)
     #p.check_returncode()
 
+    return " ".join(command)
 
 def _generate_mount(mount_name: str, path: Path, read_only=True) -> Tuple[str, str]:
     """

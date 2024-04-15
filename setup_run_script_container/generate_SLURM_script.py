@@ -8,8 +8,10 @@ CONTAINER_IMAGE = 'AlphaFold-2.3.2.sif'
 
 def main():
     args = parse_arguments()
-    FASTAFILE = args.fasta_path
-
+    FASTAFILE = args.fasta_paths[0]
+    PROTEIN_NAME = FASTAFILE.split('.f')[0]
+    if "/" in PROTEIN_NAME :
+        PROTEIN_NAME = PROTEIN_NAME.split('/')[-1]
     ###########--PROTEIN CHARACTERISTICS--############
 
     with open(FASTAFILE, 'r') as f:
@@ -27,7 +29,7 @@ def main():
     elif args.model_preset == '' and nb_lines > 2:
         args.model_preset = 'multimer'
 
-    ###########--APPROPRIATE HARDWARE--############
+    ###########--APPROPRIATE RESSOURCES--############
 
     NCPUS = 8
     NGPUS = 1
@@ -57,15 +59,38 @@ def main():
             GPUMEM = '80g'
             RUNTIME = '120:00:00'
 
-    print(f"\nEstimate required resources, please do not hesitate to adjust as needed:")
+    print(f"\nEstimate required resources, please adjust as needed in the final script:")
     print(f"Run time:            {RUNTIME:s} (hh:mm:ss)")
     print(f"Number of CPUs:      {NCPUS}")
     print(f"CPU memory per CPU:  {CPUMEM_PER_CPU[:-1]} (GB)")
     print(f"Number of GPUs:      {NGPUS}")
-    print(f"Total GPU memory:    {GPUMEM} (GB)")
-    print(f"Total scratch space: {TOTAL_SCRATCH} (GB)\n")
+    print(f"Total GPU memory:    {GPUMEM[:-1]} (GB)")
+    print(f"Total scratch space: {TOTAL_SCRATCH[:-1]} (GB)\n")
+    print(f"Output directory of the script : {args.output_dir}\n")
 
+    ###########--GENERATING THE SLURM SCRIPT--############
 
+    CMD = generate_singularity_cmd.main_singularity_cmd(args)
+
+    with open(args.output_dir + '/' + PROTEIN_NAME + '.sbatch', 'w') as output_f:
+        print(args.output_dir + '/' + PROTEIN_NAME + '.sbatch')
+        output_f.write(f'#!/usr/bin/bash\n')
+        output_f.write(f'#SBATCH -n {NCPUS}\n')
+        output_f.write(f'#SBATCH --nodes 1\n')
+        output_f.write(f'#SBATCH --mem-per-cpu {CPUMEM_PER_CPU}\n')
+        output_f.write(f'#SBATCH --time {RUNTIME}\n')
+        output_f.write(f'#SBATCH -G {NGPUS}\n')
+        output_f.write(f'#SBATCH --gres=gpumem:{GPUMEM}\n')
+        output_f.write(f'#SBATCH --tmp {TOTAL_SCRATCH}\n')
+
+        if args.shareholder != '':
+            output_f.write(f'#SBATCH -A {args.shareholder}\n')
+
+        output_f.write(f'#SBATCH -J {PROTEIN_NAME}_prediction\n')
+        output_f.write(f'#SBATCH -e {args.output_dir}/{PROTEIN_NAME}_%j_err.txt\n')
+        output_f.write(f'#SBATCH -o {args.output_dir}/{PROTEIN_NAME}_%j_out.txt\n')
+        output_f.write(f'\n')
+        output_f.write(f'{CMD}')
 
     return 0
 
@@ -80,8 +105,9 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--fasta-path",
+        "--fasta-paths",
         "-f",
+        nargs="+",
         required=True,
         help="Paths to a FASTA file",
     )
@@ -89,6 +115,7 @@ def parse_arguments():
     parser.add_argument(
         "--shareholder",
         "-s",
+        default='',
         help="If you are using GPUs, please specify your shareholder group. "
              "You can see all shareholder groups you are a part of on Euler"
              "with the my_share_info command."
@@ -157,7 +184,7 @@ def parse_arguments():
         "--docker-image", default=CONTAINER_IMAGE, help="Alphafold docker image."
     )
     parser.add_argument(
-        "--output-dir", "-o", default="./", help="Output directory for results."
+        "--output-dir", "-o", default=".", help="Output directory for results."
     )
     parser.add_argument(
         "--use-gpu",
@@ -195,36 +222,7 @@ def parse_arguments():
 if __name__ == "__main__":
     main()
 
-#
-# echo
-# echo - e
-# "    Estimate required resources, please do not hesitate to adjust if required: "
-# echo - e
-# "    Run time:            " $RUNTIME
-# echo - e
-# "    Number of CPUs:      " $NCPUS
-# echo - e
-# "    Total CPU memory:    " $TOTAL_CPU_MEM_MB
-# echo - e
-# "    Number of GPUs:      " $NGPUS
-# echo - e
-# "    Total GPU memory:    " $GPU_MEM_MB
-# echo - e
-# "    Total scratch space: " $TOTAL_SCRATCH_MB
-# echo
-#
-# ########################################
-# # Output an SLURM run script for AlphaFold
-# ########################################
-#
-# mkdir - p $WORKDIR
-# RUNSCRIPT =$WORKDIR / "$PROTEIN.sbatch"
-# echo - e
-# "  Output a SLURM run script for AlphaFold2: $RUNSCRIPT"
-#
-# RUNTIME = "${RUNTIME}":00
-# " "
-#
+
 # cat << EOF > $RUNSCRIPT
 # # !/usr/bin/bash
 # # SBATCH -n $NCPUS
