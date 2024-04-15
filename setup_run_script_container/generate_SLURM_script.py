@@ -3,7 +3,7 @@ import argparse
 from datetime import datetime
 import re
 
-CONTAINER_IMAGE = 'AlphaFold-2.3.2.sif'
+CONTAINER_IMAGE = '/cluster/apps/nss/alphafold/alphafold-2.3.2/AlphaFold-2.3.2.sif'
 
 
 def main():
@@ -192,15 +192,7 @@ def parse_arguments():
         action="store_true",
         help="Enable NVIDIA runtime to run with GPUs.",
     )
-    parser.add_argument(
-        "--run-relax",
-        default=True,
-        action="store_true",
-        help="Whether to run the final relaxation step on the predicted models. Turning "
-             "relax off might result in predictions with distracting stereochemical "
-             "violations but might help in case you are having issues with the "
-             "relaxation stage.",
-    )
+
     parser.add_argument(
         "--enable-gpu-relax",
         default=True,

@@ -111,7 +111,6 @@ def main_singularity_cmd(args):
             f"--benchmark={args.benchmark}",
             f"--use_precomputed_msas={args.use_precomputed_msas}",
             f"--num_multimer_predictions_per_model={args.num_multimer_predictions_per_model}",
-            f"--run_relax={args.run_relax}",
             f"--use_gpu_relax={args.enable_gpu_relax}",
             "--logtostderr",
         ]
