@@ -49,10 +49,11 @@ All possible option for this script can be displayed with :
   Output a SLURM run script for AlphaFold2: ./Ubiquitin.sbatch
 ```
 
-Then submit the resulting script as :
+Then submit the resulting script from the working directory as :
 ```commandline
 sbatch Ubiquitin.sbatch
 ```
+
 
 ### AlphaFold 2.3.2 : setup_run_script_container folder
 
@@ -70,7 +71,6 @@ General usage :
 ```commandline
 python generate_SLURM_script.py -f [path ot fastafile] -o [output/working directory] -s [your share for GPU usage]
 ```
-
 A simple example :
 ```commandline
 [nmarounina@eu-login-43 setup_run_script_container]$ python generate_SLURM_script.py -f ../fastafiles/Ubiquitin.fasta -o /cluster/scratch/nmarounina -s es_hpc -c 8 
@@ -86,6 +86,11 @@ Total scratch space: 120 (GB)
 Output directory of the script : /cluster/scratch/nmarounina
 
 /cluster/scratch/nmarounina/Ubiquitin.sbatch
+```
+Then submit the resulting script from the working directory as :
+
+```commandline
+sbatch Ubiquitin.sbatch
 ```
 
 ## Postprocessing
