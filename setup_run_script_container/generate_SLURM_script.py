@@ -1,3 +1,8 @@
+
+# Script generating a SLURM script to start an Alphafold job
+# Created by N. Marounina in Apr.2023 for usage on the ETHZ Euler cluster
+# [nmarounina@ethz.ch]
+
 import generate_singularity_cmd
 import argparse
 from datetime import datetime
@@ -213,69 +218,3 @@ def parse_arguments():
 
 if __name__ == "__main__":
     main()
-
-
-# cat << EOF > $RUNSCRIPT
-# # !/usr/bin/bash
-# # SBATCH -n $NCPUS
-# # SBATCH --time=$RUNTIME
-# # SBATCH --mem-per-cpu=$((TOTAL_CPU_MEM_MB/NCPUS))
-# # SBATCH --nodes=1
-# # SBATCH -G $NGPUS
-# # SBATCH --gres=gpumem:$GPU_MEM_MB
-# # SBATCH --tmp=$TOTAL_SCRATCH_MB
-# # SBATCH -A $SHAREHOLDER_GROUP
-# # SBATCH -J af2_$PROTEIN
-# # SBATCH -e $WORKDIR/$PROTEIN.%j.err.txt
-# # SBATCH -o $WORKDIR/$PROTEIN.%j.out.txt
-#
-# source / cluster / apps / local / env2lmod.sh
-# module
-# load
-# gcc / 6.3
-# .0
-# openmpi / 4.0
-# .2
-# alphafold / 2.3
-# .1
-# module
-# load
-# alphafold - postprocessing
-# source / cluster / apps / nss / alphafold / venv_alphafold_2
-# .3
-# .1 / bin / activate
-#
-# # Define paths to databases and output directory
-# DATA_DIR = / cluster / project / alphafold
-# OUTPUT_DIR =\${TMPDIR} / output
-#
-# # Activate unified memory
-# export
-# TF_FORCE_UNIFIED_MEMORY =$ENABLE_UNIFIED_MEMORY
-# export
-# XLA_PYTHON_CLIENT_MEM_FRACTION =${MEM_FRACTION}
-# .0
-#
-# python / cluster / apps / nss / alphafold / alphafold - 2.3
-# .1 / run_alphafold.py \ \
-#     --data_dir =\$DATA_DIR \ \
-#     --output_dir =\$OUTPUT_DIR \ \
-#     --max_template_date = "$MAX_TEMPLATE_DATE" \ \
-#     --uniref90_database_path =\$DATA_DIR / uniref90 / uniref90.fasta \ \
-#     --mgnify_database_path =\$DATA_DIR / mgnify / mgy_clusters_2018_12.fa \ \
-#     --template_mmcif_dir =\$DATA_DIR / pdb_mmcif / mmcif_files \ \
-#     --obsolete_pdbs_path =\$DATA_DIR / pdb_mmcif / obsolete.dat \ \
-#     $OPTIONS - -fasta_paths =$FASTAFILE
-#
-# # Produce some plots using the postprocessing script from
-# # https://gitlab.ethz.ch/sis/alphafold-postprocessing
-# # :
-#
-# python - u / cluster / apps / nss / alphafold / alphafold - postprocessing / 1.0
-# .0 / bin / postprocessing.py - o \$OUTPUT_DIR /$PROTEIN / plots \$OUTPUT_DIR /$PROTEIN
-#
-# rsync - av $RSYNC_OPTIONS \$TMPDIR / output /$PROTEIN $WORKDIR
-#
-# touch $WORKDIR /$PROTEIN.done
-#
-# EOF

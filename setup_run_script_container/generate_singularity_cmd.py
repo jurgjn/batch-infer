@@ -5,6 +5,9 @@
 #
 # Author: Diego Alvarez S. [dialvarezs@gmail.com]
 # Last modified: 2022-12-13
+#
+# Script updated by N. Marounina in Apr.2023 for usage on the ETHZ Euler cluster
+# [nmarounina@ethz.ch]
 
 import argparse
 import subprocess
@@ -12,9 +15,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple
 
-CONTAINER_IMAGE = "af.sif"
 ROOT_MOUNT_DIRECTORY = "/mnt"
-
 
 def main_singularity_cmd(args):
     #args = parse_arguments()
