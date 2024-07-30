@@ -14,7 +14,7 @@ All of our recommendations are already included in this script. However, based o
 ## Usage:
 
 ### AlphaFold 2.3.2 : setup_run_script_AF2.3.2 folder
-This script should allow you to start alphafold jobs on CentOS and Ubuntu paritionas on the cluster. Please note that the CentOS partition will be soon removed from the cluster. 
+This script should allow you to start alphafold jobs on CentOS and Ubuntu partitions on the cluster. Please note that the CentOS partition will be soon removed from the cluster. 
 This script uses a containerised version of Alphafold 2.3.2. If older versions of alphafold are needed, please contact cluster support and we will provide them for you.
 
 ```commandline
