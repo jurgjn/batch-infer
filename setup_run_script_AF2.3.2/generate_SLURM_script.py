@@ -106,7 +106,7 @@ def has_numbers(inputString):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
-        description="Generates a SLURM script for running Alphafold v2.3.2 with Singularity/Apptainer in a batch job"
+        description="Generates a SLURM script for running Alphafold v2.3.2 with Apptainer in a batch job"
     )
 
     parser.add_argument(
@@ -122,7 +122,7 @@ def parse_arguments():
         "-s",
         default='',
         help="If you are using GPUs, please specify your shareholder group. "
-             "You can see all shareholder groups you are a part of on Euler"
+             "You can see all shareholder groups you are a part of on Euler "
              "with the my_share_info command."
     )
 
@@ -186,32 +186,37 @@ def parse_arguments():
              "and template databases. Set to the target of download_all_databases.sh.",
     )
     parser.add_argument(
-        "--docker-image", default=CONTAINER_IMAGE, help="Alphafold docker image."
+        "--docker-image",
+        default=CONTAINER_IMAGE,
+        help="Alphafold docker image."
     )
     parser.add_argument(
-        "--output-dir", "-o", default=".", help="Output directory for results."
+        "--output-dir",
+        "-o",
+        default=".",
+        help="Output directory for results."
     )
-    parser.add_argument(
-        "--use-gpu",
-        default=True,
-        action="store_true",
-        help="Enable NVIDIA runtime to run with GPUs.",
-    )
+    # parser.add_argument(
+    #     "--use-gpu",
+    #     default=True,
+    #     action="store_true",
+    #     help="Enable NVIDIA runtime to run with GPUs.",
+    # )
 
     parser.add_argument(
         "--enable-gpu-relax",
         default=True,
         action="store_true",
-        help="Run relax on GPU if GPU is enabled.",
+        help="Run relax on GPU and enables proper GPU options",
     )
-    parser.add_argument(
-        "--gpu-devices",
-        default="all",
-        help="Comma separated list of devices to pass to NVIDIA_VISIBLE_DEVICES.",
-    )
-    parser.add_argument(
-        "--cpus", "-c", type=int, default=8, help="Number of CPUs to use."
-    )
+    # parser.add_argument(
+    #     "--gpu-devices",
+    #     default="all",
+    #     help="Comma separated list of devices to pass to NVIDIA_VISIBLE_DEVICES.",
+    # )
+    # parser.add_argument(
+    #     "--cpus", "-c", type=int, default=8, help="Number of CPUs to use."
+    # )
 
     return parser.parse_args()
 
