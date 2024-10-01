@@ -17,8 +17,9 @@ from typing import Tuple
 
 ROOT_MOUNT_DIRECTORY = "/mnt"
 
+
 def main_singularity_cmd(args):
-    #args = parse_arguments()
+    # args = parse_arguments()
 
     data_path = Path(args.data_dir)
 
@@ -119,20 +120,20 @@ def main_singularity_cmd(args):
 
     # Set environment variables for the container
     env = {
-        "NVIDIA_VISIBLE_DEVICES": args.gpu_devices,
+        "NVIDIA_VISIBLE_DEVICES": "all",  # args.gpu_devices,
         # The following flags allow us to make predictions on proteins that
         # would typically be too long to fit into GPU memory.
         "TF_FORCE_UNIFIED_MEMORY": "1",
         "XLA_PYTHON_CLIENT_MEM_FRACTION": "4.0",
-        "OPENMM_CPU_THREADS": args.cpus,
-        "MAX_CPUS": args.cpus,
+        "OPENMM_CPU_THREADS": "8",
+        "MAX_CPUS": "8",
     }
 
     # Generate the final command to execute
     command = [
         "singularity",
         "exec",
-        "--nv" if args.use_gpu else "",
+        "--nv" if args.enable_gpu_relax else "",
         "--bind",
         ",".join(mounts),
         *[f'--env="{k}={v}"' for k, v in env.items()],
@@ -141,13 +142,13 @@ def main_singularity_cmd(args):
         *command_args,
     ]
 
+    # print("Executing: " + " ".join(command))
 
-    #print("Executing: " + " ".join(command))
-
-    #p = subprocess.run(command)
-    #p.check_returncode()
+    # p = subprocess.run(command)
+    # p.check_returncode()
 
     return " ".join(command)
+
 
 def _generate_mount(mount_name: str, path: Path, read_only=True) -> Tuple[str, str]:
     """
