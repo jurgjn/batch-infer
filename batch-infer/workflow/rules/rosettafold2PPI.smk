@@ -129,7 +129,8 @@ rule rosettafoldPPI_generate_mats:
         short_mat_o = 'rosettafoldPPI_combined_mats/short_mat_{now}.npy',
         short_mat_i= 'rosettafoldPPI_combined_mats/short_mat_{now}.tsv',
         long_mat_o = 'rosettafoldPPI_combined_mats/long_mat_{now}.npy',
-        long_mat_i= 'rosettafoldPPI_combined_mats/long_mat_{now}.tsv'
+        long_mat_i= 'rosettafoldPPI_combined_mats/long_mat_{now}.tsv',
+        completed_run = 'rosettafoldPPI_combined_mats/completed.txt'
     run:
         """
         inf_list = next(os.walk({comb_fold}))[2]
@@ -179,7 +180,7 @@ rule rosettafoldPPI_generate_mats:
         np.save({long_mat_o},long_mat)
         open({long_mat_i},'w').write('\t'.join(long_inp_list))
         
-        print('done')
+        open('{completed_run}','w').write('completed!')
 
         """
 
