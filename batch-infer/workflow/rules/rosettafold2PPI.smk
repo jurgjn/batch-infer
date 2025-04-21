@@ -64,14 +64,14 @@ rule rosettafold_msas:
 rule rosettafoldPPI_combined_msas:
     # combine the MSAs together
     input:
-        json = 'alphafold3_msas/{id}_data.json.gz'
+        json = 'alphafold3_msas/{id}_data.json.gz',
+        other_json= 'alphafold3_msas/{other}_data.json.gz',
     output:
         # For each file, create a folder with comparison results
         folder='rosettafoldPPI_combined_msas/{id}/',
         fasta='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa',
         a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa'
     params:
-        other_json = 'alphafold3_msas/{other}_data.json.gz',
         path_to_reform = '{p2src}/src/reformat.pl'
     run:
         """
