@@ -69,7 +69,7 @@ rule rosettafoldPPI_combined_msas:
     output:
         # For each file, create a folder with comparison results
         fasta='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa',
-        a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa'
+        a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.a3m'
     params:
         path_to_reform = '{p2src}/src/reformat.pl'
     run:
@@ -85,7 +85,7 @@ rule rosettafoldPPI_predictions:
     # combine the MSAs together
     input:
         fasta='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa',
-        a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa'
+        a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.a3m'
     output:
         # For each file, create a folder with comparison results
         log='rosettafoldPPI_predicted_msas/{id}/{id}-{other}-res.tsv'
