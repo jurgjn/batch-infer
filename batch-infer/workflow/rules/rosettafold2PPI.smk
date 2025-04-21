@@ -68,13 +68,14 @@ rule rosettafoldPPI_combined_msas:
         other_json= 'alphafold3_msas/{other}_data.json.gz',
     output:
         # For each file, create a folder with comparison results
-        folder='rosettafoldPPI_combined_msas/{id}/',
         fasta='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa',
         a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa'
     params:
         path_to_reform = '{p2src}/src/reformat.pl'
     run:
         """
+         if not os.path.exists('rosettafoldPPI_combined_msas/{id}/'):
+            os.mkdir('rosettafoldPPI_combined_msas/{id}/')
          joined_fasta = utils.join_alg_a3m({json}, {other_json})
          SeqIO.write(joined_fasta, fs_out+'.fa','fasta')
          os.system('{path_to_reform} fas a3m {fasta} {a3m}')
