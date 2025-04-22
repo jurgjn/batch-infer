@@ -107,7 +107,6 @@ rule rosettafoldPPI_combine_logs:
     # combine the MSAs together
     input:
         log=expand('rosettafoldPPI_predicted_msas/{id}/{id}-{other}-res.tsv',id=ids,other=[x for x in ids if x != "{id}"]),
-        fold='rosettafoldPPI_predicted_msas/{id}/'
     output:
         comb_log = 'rosettafoldPPI_combined_logs/{id}-combined-res.tsv'
     shell:
