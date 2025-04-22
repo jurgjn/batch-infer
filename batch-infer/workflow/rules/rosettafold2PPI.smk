@@ -2,7 +2,6 @@ import sys
 import numpy as np
 from datetime import datetime
 
-now = datetime.now().isoformat(timespec='minutes').replace('-', '').replace(':', '')
 p2src = '/cluster/project/beltrao/spasca/eukaryoma/PPI_stuff/Eukaryoma_PPI_analysis/src'
 sys.path.append(p2src)
 import utils
@@ -127,13 +126,20 @@ rule rosettafoldPPI_generate_mats:
         comb_log=expand('rosettafoldPPI_combined_logs/{id}-combined-res.tsv',id=ids),
         comb_fold='rosettafoldPPI_combined_logs/'
     output:
-        short_mat_o = 'rosettafoldPPI_combined_mats/short_mat_{now}.npy',
-        short_mat_i= 'rosettafoldPPI_combined_mats/short_mat_{now}.tsv',
-        long_mat_o = 'rosettafoldPPI_combined_mats/long_mat_{now}.npy',
-        long_mat_i= 'rosettafoldPPI_combined_mats/long_mat_{now}.tsv',
+        short_mat_o = 'rosettafoldPPI_combined_mats/short_mat_{}.npy',
+        short_mat_i= 'rosettafoldPPI_combined_mats/short_mat_{}.tsv',
+        long_mat_o = 'rosettafoldPPI_combined_mats/long_mat_{}.npy',
+        long_mat_i= 'rosettafoldPPI_combined_mats/long_mat_{}.tsv',
         completed_run = 'rosettafoldPPI_combined_mats/completed.txt'
+    params:
+        now = datetime.now().isoformat(timespec='minutes').replace('-','').replace(':','')
     run:
         """
+        short_mat_o = short_mat_o.format(params.now)
+        short_mat_i = short_mat_i.format(params.now)
+        long_mat_o = long_mat_o.format(params.now)
+        long_mat_i = long_mat_i.format(params.now)
+        
         inf_list = next(os.walk({comb_fold}))[2]
         inp_list = [x.split('/')[-1].split('-')[0] for x in inf_list]
         
