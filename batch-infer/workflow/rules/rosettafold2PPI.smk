@@ -70,7 +70,7 @@ rule rosettafoldPPI_combined_msas:
         fasta='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.fa',
         a3m='rosettafoldPPI_combined_msas/{id}/{id}-{other}-joined.a3m'
     params:
-        path_to_reform = '{p2src}/src/reformat.pl'
+        path_to_reform = '{p2src}/src/reformat.pl'.format(p2src=p2src)
     run:
         """
          if not os.path.exists('rosettafoldPPI_combined_msas/{id}/'):
