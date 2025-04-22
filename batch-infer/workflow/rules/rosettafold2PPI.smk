@@ -124,7 +124,7 @@ rule rosettafoldPPI_combine_logs:
 
 rule rosettafoldPPI_generate_mats:
     input:
-        comb_log='rosettafoldPPI_combined_logs/{id}-combined-res.tsv',
+        comb_log=expand('rosettafoldPPI_combined_logs/{id}-combined-res.tsv',id=ids),
         comb_fold='rosettafoldPPI_combined_logs/'
     output:
         short_mat_o = 'rosettafoldPPI_combined_mats/short_mat_{now}.npy',
