@@ -73,11 +73,11 @@ rule rosettafoldPPI_combined_msas:
         path_to_reform = '{p2src}/src/reformat.pl'.format(p2src=p2src)
     run:
         """
-         if not os.path.exists('rosettafoldPPI_combined_msas/{id}/'):
-            os.mkdir('rosettafoldPPI_combined_msas/{id}/')
-         joined_fasta = utils.join_alg_a3m({json}, {other_json})
+         if not os.path.exists('rosettafoldPPI_combined_msas/{wildcards.id}/'):
+            os.mkdir('rosettafoldPPI_combined_msas/{wildcars.id}/')
+         joined_fasta = utils.join_alg_a3m({input.json}, {input.other_json})
          SeqIO.write(joined_fasta, fs_out+'.fa','fasta')
-         os.system('{path_to_reform} fas a3m {fasta} {a3m}')
+         os.system('{params.path_to_reform} fas a3m {output.fasta} {output.a3m}')
          """
 
 rule rosettafoldPPI_predictions:
@@ -92,29 +92,31 @@ rule rosettafoldPPI_predictions:
        """
        # make input file
        CURDIR=`pwd`
-       THISTMP=$TMPDIR/{id}_{other}
+       THISTMP=$TMPDIR/{wildcards.id}_{wildcards.other}
        mkdir $THISTMP
        cd $THISTMP
-       echo $CURDIR/{a3m} $(head -1 $CURDIR/{a3m}|cut -d_ -f2)>input_file
+       echo $CURDIR/{input.a3m} $(head -1 $CURDIR/{input.a3m}|cut -d_ -f2)>input_file
        # run prediction
         singularity exec --bind ./:/work/users --bind {rosetta_github_p}:/home/RoseTTAFold2-PPI --nv {rosetta_fold_p} \
        /bin/bash -c "cd /work/users && python /home/RoseTTAFold2-PPI/sec/predict_list_PPI.py input_file" && touch run_complete
         # save output
-        mv input_file.log $CURDIR/{log}
+        mv input_file.log $CURDIR/{output.log}
 """
 
 rule rosettafoldPPI_combine_logs:
     # combine the MSAs together
     input:
-        log=expand('rosettafoldPPI_predicted_msas/{id}/{id}-{other}-res.tsv',id=ids,other=[x for x in ids if x != "{id}"]),
+        log=expand('rosettafoldPPI_predicted_msas/{id}/{id}-{other}-res.tsv',other=[x for x in ids if x != "{id}"]),
     output:
         comb_log = 'rosettafoldPPI_combined_logs/{id}-combined-res.tsv'
+    params:
+        fold = 'rosettafoldPPI_predicted_msas/{id}/'
     shell:
        """
        # combine the logs in one file per protein
-       for f in $(ls {fold})
+       for f in $(ls {params.fold})
        do
-            grep -v 'done' {fold}/$f >> {comb_log}
+            grep -v 'done' {params.fold}/$f >> {output.comb_log}
        done
        # and then kill them!
        # kill not yet implemented
@@ -122,15 +124,16 @@ rule rosettafoldPPI_combine_logs:
 
 rule rosettafoldPPI_generate_mats:
     input:
-        comb_log=expand('rosettafoldPPI_combined_logs/{id}-combined-res.tsv',id=ids),
+        comb_log = expand('rosettafoldPPI_combined_logs/{id}-combined-res.tsv',id=ids),
     output:
         short_mat_o = 'rosettafoldPPI_combined_mats/short_mat_{}.npy',
-        short_mat_i= 'rosettafoldPPI_combined_mats/short_mat_{}.tsv',
+        short_mat_i = 'rosettafoldPPI_combined_mats/short_mat_{}.tsv',
         long_mat_o = 'rosettafoldPPI_combined_mats/long_mat_{}.npy',
-        long_mat_i= 'rosettafoldPPI_combined_mats/long_mat_{}.tsv',
+        long_mat_i = 'rosettafoldPPI_combined_mats/long_mat_{}.tsv',
         completed_run = 'rosettafoldPPI_combined_mats/completed.txt'
     params:
-        now = datetime.now().isoformat(timespec='minutes').replace('-','').replace(':','')
+        now = datetime.now().isoformat(timespec='minutes').replace('-','').replace(':',''),
+        comb_fold = 'rosettafoldPPI_combined_logs/'
     run:
         """
         short_mat_o = short_mat_o.format(params.now)
@@ -138,13 +141,13 @@ rule rosettafoldPPI_generate_mats:
         long_mat_o = long_mat_o.format(params.now)
         long_mat_i = long_mat_i.format(params.now)
         
-        inf_list = next(os.walk({comb_fold}))[2]
+        inf_list = next(os.walk({params.comb_fold}))[2]
         inp_list = [x.split('/')[-1].split('-')[0] for x in inf_list]
         
         data_storage = {} # save interaction score in a dict of dicts with the two interactors as keys and the prediction score as value
         
         for f in inf_list:
-            for line in open({comb_fold} + f):
+            for line in open({params.comb_fold} + f):
                 line = line.split('\t')
                 p1 = line[0].split('-')[0]
                 p2 = line[0].split('-')[1]
@@ -167,8 +170,8 @@ rule rosettafoldPPI_generate_mats:
                         short_mat[j][i] = data_storage[jp][ip]
         # save short mat and ids order
         print('created short mat of len {}'.format(slen))
-        np.save({short_mat_o},short_mat)
-        open({short_mat_i},'w').write('\t'.join(inp_list))
+        np.save({output.short_mat_o},short_mat)
+        open({output.short_mat_i},'w').write('\t'.join(inp_list))
         
         # create long mat
         long_mat = np.diag(np.full(llen,1.))
@@ -182,10 +185,10 @@ rule rosettafoldPPI_generate_mats:
                         long_mat[j][i] = data_storage[jp][ip]
         # save long mat and ids order
         print('created long mat of len {}'.format(llen))
-        np.save({long_mat_o},long_mat)
-        open({long_mat_i},'w').write('\t'.join(long_inp_list))
+        np.save({output.long_mat_o},long_mat)
+        open({output.long_mat_i},'w').write('\t'.join(long_inp_list))
         
-        open('{completed_run}','w').write('completed!')
+        open('{output.completed_run}','w').write('completed!')
 
         """
 
