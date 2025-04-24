@@ -106,7 +106,7 @@ rule rosettafoldPPI_predictions:
 rule rosettafoldPPI_combine_logs:
     # combine the MSAs together
     input:
-        lambda wildcards: expand('rosettafoldPPI_predicted_msas/{wildcards.id}/{wildcards.id}-{other}-res.tsv',other=[x for x in ids if x != "{wildcards.id}"]),
+        lambda wildcards: expand('rosettafoldPPI_predicted_msas/{id}/{id}-{other}-res.tsv',id=wildcards.id, other=[x for x in ids if x != wildcards.id]),
     output:
         comb_log = 'rosettafoldPPI_combined_logs/{id}-combined-res.tsv'
     params:
