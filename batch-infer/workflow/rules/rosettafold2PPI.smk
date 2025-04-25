@@ -42,7 +42,7 @@ rule rosettafold_msas:
         'stack/2024-05', 'gcc/13.2.0',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     # Re-attempt (failed) MSAs with increasing runtimes (4h, 1d, 3d)
-    retries: 3
+    retries: 1 #3
     shell: """
         SMKDIR=`pwd`
         rsync -auq $SMKDIR/ $TMPDIR --include='alphafold3_jsons' --include='{input.json}' --exclude='*'
