@@ -55,12 +55,13 @@ rule rosettafold_msas:
                 {params.model_dir} \
                 {params.db_dir} \
                 {params.xtra_args}'
-        cd -
-        ls {params.output_dir}
-        ls af_output
-        ls $TMPDIR/alphafold3_msas/
+        #cd -
+        ls $TMPDIR
+        ls $TMPDIR/alphafold3_msas/{wildcards.id}
+        ls $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json
         gzip $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json
         cp $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json.gz $SMKDIR/alphafold3_msas/{wildcards.id}_data.json.gz
+        cd -
     """
 
 rule rosettafoldPPI_combined_msas:
