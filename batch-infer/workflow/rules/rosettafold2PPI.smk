@@ -37,7 +37,7 @@ rule rosettafold_msas:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
-        xtra_args = '--norun_inference --force_output_dir',
+        xtra_args = '--norun_inference', #--force_output_dir',
     envmodules:
         'stack/2024-05', 'gcc/13.2.0',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
