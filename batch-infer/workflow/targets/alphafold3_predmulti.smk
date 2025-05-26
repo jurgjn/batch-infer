@@ -1,24 +1,10 @@
 
-
 include: '../rules/common.smk'
-
-localrules: alphafold3_msasm
-
 include: '../rules/alphafold3_msasm.smk'
 
 #ids = ['mapk1_dusp6',]
-#ids = ['example_atox1']
-#ids, = glob_wildcards('alphafold3_jsons/{id}.json')
-#ids, = glob_wildcards('alphafold3_msas/{id}_data.json')
-#print(ids)
-
-#ids = []
-#ids = alphafold3_stats().id.tolist()
 ids = pd.read_csv('alphafold3_predmultb.tsv', sep='\t').id.tolist()
 #pprint(ids)
-
-# alphafold3_ids() - return all
-# alphafold3_ids_grouped() - return [['a', 'b', 'c'], ['e', 'f', 'g']]
 
 for batch_id, df_batch in pd.read_csv('alphafold3_predmultb.tsv', sep='\t').groupby('batch_id'):
     #print(batch_id)
@@ -85,6 +71,7 @@ for batch_id, df_batch in pd.read_csv('alphafold3_predmultb.tsv', sep='\t').grou
         """
 
 rule alphafold3_predmulti:
+    # Multimer prediction with monomer-derived MSAs, and prediction steps batched across multiple GPU jobs
     input:
         #expand('alphafold3_msasm/{id}_data.json.gz', id=ids),
         expand('alphafold3_predmulti/{id}/{id}_model.cif.gz', id=ids),

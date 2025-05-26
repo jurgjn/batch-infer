@@ -75,5 +75,6 @@ for batch_id, df_batch in pd.read_csv('alphafold3_predbatch.tsv', sep='\t').grou
         """
 
 rule alphafold3_predbatch:
+    # AF3 with predictions steps batched across multiple GPU jobs
     input:
         expand('alphafold3_predictions/{id}/{id}_model.cif.gz', id=ids),
