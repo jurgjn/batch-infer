@@ -73,6 +73,15 @@ def root_path(path):
     """
     return os.path.join(os.path.abspath(f'{workflow.basedir}/../..'), path)
 
+def alphafold3_jobname(s):
+    """
+    AF3 job names are lower case, numeric, -._
+    https://github.com/google-deepmind/alphafold3/blob/main/src/alphafold3/common/folding_input.py#L919-L923
+    """
+    def is_allowed(c):
+        return c.islower() or c.isnumeric() or c in set('-._')
+    return ''.join(filter(is_allowed, s.strip().lower().replace(' ', '-').replace('_', '-')))
+
 @functools.cache
 def est_tokens_(file):
     with gzip.open(file, 'rt') as fh:
@@ -109,3 +118,27 @@ def alphafold3_predmultb(ids, batch_runtime_hrs=3, c_or_r=[ 1.44451398e-04, -1.1
     df_['batch_id'] = df_['weight_cumsum'].astype(int) // batch_runtime_hrs
     print(df_.groupby('batch_id').agg(no_of_sequences=('id', len), predicted_runtime=('weight', 'sum')))
     return df_
+
+def alphafold3_write_monomer(af3_id, seq):
+    json_ = """
+{
+  "name": "%s",
+  "sequences": [
+    {
+      "protein": {
+        "id": "A",
+        "sequence": "%s"
+      }
+    }
+  ],
+  "modelSeeds": [4],
+  "dialect": "alphafold3",
+  "version": 2
+}
+"""
+    path = f'alphafold3_jsons/{af3_id}.json'
+    if not os.path.isfile(path):
+        with open(path, 'w') as fh:
+            fh.write(json_ % (af3_id, seq))
+    else:
+        print('skipping', path)
