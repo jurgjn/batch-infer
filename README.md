@@ -28,7 +28,7 @@ Start the pipeline with:
 ./batch-infer alphafold3 results/alphafold3_adhoc_examples | sbatch
 ```
 
-See [EXAMPLE.ipynb](EXAMPLE.ipynb) for a more detailed walk-through.
+See [alphafold3_adhoc_examples](results/alphafold3_adhoc_examples/alphafold3_adhoc_examples.ipynb) for a more detailed walk-through.
 
 ---
 Table to keep track of AlphaFold3 and related co-folding methods
