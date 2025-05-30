@@ -1,6 +1,6 @@
 # Batch inference of protein structure
 
-Run AlphaFold3 on [Euler](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters) with data pipeline (MSA) and structure prediction steps parallelised across nodes.
+Run AlphaFold3 on [Euler](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters) with data pipeline (MSA), and structure prediction steps parallelised across nodes. For example, _e. coli_ proteome (4,402 monomers) took 2 days for the data pipeline, and x days for structure prediction. 
 - Data pipeline runs on CPU-only nodes, each input as a separate job. Runtime ranges from an hour to a few days. Jobs that run out of RAM/runtime automatically re-start with increased resources.
 - Structure prediction runs on nodes with an A100 GPU, typically taking minutes per input. We therefore group inputs by size, and run one structure prediction job per group. This minimizes model startup, recompilation, and job scheduler waiting time.
 - Uses [local scratch](https://scicomp.ethz.ch/wiki/Using_local_scratch), compresses input/output with gzip (~5x space/traffic reduction).
@@ -16,6 +16,7 @@ Clone the repository:
 ```
 cd /cluster/scratch/$USER
 git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
+cd batch-infer
 ```
 
 Edit 
@@ -25,7 +26,7 @@ to locate your AlphaFold3 model parameters. These are
 
 Start the pipeline with:
 ```
-./batch-infer alphafold3 results/alphafold3_adhoc_examples | sbatch
+./batch-infer alphafold3_onegpu results/alphafold3_adhoc_examples | sbatch
 ```
 
 See [alphafold3_adhoc_examples.ipynb](results/alphafold3_adhoc_examples/alphafold3_adhoc_examples.ipynb) for a more detailed walk-through.

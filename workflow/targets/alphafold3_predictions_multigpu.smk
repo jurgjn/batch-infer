@@ -2,15 +2,13 @@
 include: '../rules/common.smk'
 include: '../rules/alphafold3_msas.smk'
 
-#ids = []
-#ids = alphafold3_stats().id.tolist()
-ids = pd.read_csv('alphafold3_predbatch.tsv', sep='\t').id.tolist()
-#pprint(ids)
+tsv_ = 'alphafold3_predictions_multigpu.tsv'
+if not os.path.isfile(tsv_):
+    alphafold3_read_predictions_multigpu().to_csv(tsv_, sep='\t', index=False, header=True)
 
-# alphafold3_ids() - return all
-# alphafold3_ids_grouped() - return [['a', 'b', 'c'], ['e', 'f', 'g']]
+ids = pd.read_csv(tsv_, sep='\t').id.tolist()
 
-for batch_id, df_batch in pd.read_csv('alphafold3_predbatch.tsv', sep='\t').groupby('batch_id'):
+for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
     #print(batch_id)
     #print(df_batch)
 
@@ -74,7 +72,7 @@ for batch_id, df_batch in pd.read_csv('alphafold3_predbatch.tsv', sep='\t').grou
             rsync -auv $TMPDIR/alphafold3_predictions $SMKDIR/
         """
 
-rule alphafold3_predbatch:
+rule alphafold3_predictions_multigpu:
     # AF3 with predictions steps batched across multiple GPU jobs
     input:
         expand('alphafold3_predictions/{id}/{id}_model.cif.gz', id=ids),

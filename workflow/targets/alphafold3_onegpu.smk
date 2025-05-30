@@ -7,7 +7,7 @@ include: '../rules/common.smk'
 include: '../rules/alphafold3_msas.smk'
 include: '../rules/alphafold3_predictions.smk'
 
-rule alphafold3:
+rule alphafold3_onegpu:
     # AlphaFold3 run with MSAs as individual jobs, all predictions as a single GPU job
     input:
         #expand('alphafold3_msas/{id}_data.json.gz', id=ids),
