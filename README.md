@@ -30,15 +30,3 @@ Start the pipeline with:
 ```
 
 See [alphafold3_adhoc_examples.ipynb](results/alphafold3_adhoc_examples/alphafold3_adhoc_examples.ipynb) for a more detailed walk-through.
-
----
-Table to keep track of AlphaFold3 and related co-folding methods
-| Name       | Repo    |
-| ---------- | ------- |
-| AlphaFold3 | [google-deepmind/alphafold3](https://github.com/google-deepmind/alphafold3) |
-| Boltz-1    | [jwohlwend/boltz](https://github.com/jwohlwend/boltz) |
-| Chai-1     | [chaidiscovery/chai-lab](https://github.com/chaidiscovery/chai-lab) |
-| HelixFold  | [PaddlePaddle/PaddleHelix](https://github.com/PaddlePaddle/PaddleHelix/tree/dev/apps/protein_folding/helixfold) |
-| Ligo       | [Ligo-Biosciences/AlphaFold3](https://github.com/Ligo-Biosciences/AlphaFold3) |
-| OpenFold3  | [(TBD)](https://bsky.app/profile/moalquraishi.bsky.social/post/3lbeqspkunc2w) | 
-| Protenix   | [bytedance/Protenix](https://github.com/bytedance/Protenix) |
