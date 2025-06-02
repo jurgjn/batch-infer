@@ -82,28 +82,44 @@ def alphafold3_jobname(s):
         return c.islower() or c.isnumeric() or c in set('-._')
     return ''.join(filter(is_allowed, s.strip().lower().replace(' ', '-').replace('_', '-')))
 
-@functools.cache
-def est_tokens_(file):
-    with gzip.open(file, 'rt') as fh:
-        sequences = json.load(fh)['sequences']
-        n_tokens = 0
-        for seq in sequences:
-            #print(seq)
-            n_tokens += len(seq['protein']['sequence'])
+def alphafold3_json_tokens(path):
+    if path.endswith('.gz'):
+        fh = gzip.open(path, 'rt')
+    else:
+        fh = open(path, 'r')
+    sequences = json.load(fh)['sequences']
+    n_tokens = 0
+    for seq in sequences:
+        if 'protein' in seq:
+            n_chains = len(seq['protein']['id'])
+            seq_len = len(seq['protein']['sequence'])
+            n_tokens += n_chains * seq_len
+        # TODO - nucleic acids, ligands, PTMs
     return n_tokens
+
+def alphafold3_read_jsons():
+    import snakemake.io
+    ids, = snakemake.io.glob_wildcards('alphafold3_jsons/{id}.json')
+    df_ = pd.DataFrame({'id': ids})
+    df_['json'] = df_['id'].map(lambda id: f'alphafold3_jsons/{id}.json')
+    df_['tokens'] = df_['json'].map(alphafold3_json_tokens)
+    return df_
 
 def msasm_tokens_(ids):
     df_ = pd.DataFrame({'id': ids.split('_')})
     df_['data'] = df_['id'].map(lambda id: f'alphafold3_msas/{id}_data.json.gz')
     df_['data_isfile'] = df_['data'].map(os.path.isfile)
-    df_['tokens'] = df_['data'].map(est_tokens_)
+    df_['tokens'] = df_['data'].map(alphafold3_json_tokens)
     return df_['tokens'].sum()
 
-def alphafold3_predmultb(ids, batch_runtime_hrs=3, c_or_r=[ 1.44451398e-04, -1.18261348e-01,  5.38503478e+01]):
-    #ids, = glob_wildcards('alphafold3_jsons/{id}.json')
+def alphafold3_read_predictions_multigpu(batch_runtime_hrs=3, c_or_r=[ 1.44451398e-04, -1.18261348e-01,  5.38503478e+01]):
+    import snakemake.io
+    ids, = snakemake.io.glob_wildcards('alphafold3_msas/{id}_data.json.gz')
+
     df_ = pd.DataFrame({'id': ids})
-    df_['tokens'] = df_['id'].map(msasm_tokens_)
-    df_['pred'] = df_['id'].map(lambda id: f'alphafold3_predmulti/{id}/{id}_model.cif.gz')
+    df_['json'] = df_['id'].map(lambda id: f'alphafold3_jsons/{id}.json')
+    df_['tokens'] = df_['json'].map(alphafold3_json_tokens)
+    df_['pred'] = df_['id'].map(lambda id: f'alphafold3_predictions/{id}/{id}_model.cif.gz')
 
     df_['tokens_check'] = (16 < df_['tokens']) & (df_['tokens'] <= 6000)
     df_['pred_isfile'] = df_['pred'].map(os.path.isfile)

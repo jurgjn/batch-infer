@@ -6,9 +6,9 @@
 [run_alphafold_test.py](https://github.com/google-deepmind/alphafold3/blob/main/run_alphafold_test.py)
 and
 [run_alphafold_data_test.py](https://github.com/google-deepmind/alphafold3/blob/main/run_alphafold_data_test.py)
-- Optimise number of simultaneous MSA jobs (currently set to 500)
-    - Alternative locations for the public databases, e.g. SSD or global scratch?
-    - Striping - https://wiki.lustre.org/Configuring_Lustre_File_Striping
+- Optimise number of simultaneous MSA jobs; currently set to 500 but this can cause low CPU usage (~20%) for some runs
+    - Alternative locations for the public databases, e.g. designated SSD/ramdisk or global scratch?
+        - Striping - https://wiki.lustre.org/Configuring_Lustre_File_Striping
     - Batch MSA jobs & download local copy every time (takes ~30mins, traffic considerations?)
 - Downstream processing, e.g. scoring biases, interaction patterns, ...
 - Other co-folding methods
