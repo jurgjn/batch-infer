@@ -8,6 +8,9 @@ alphafold3_predictions/
 .snakemake-eu/
 .snakemake_timestamp
 
+# Binary files
+*.gz
+
 # macOS
 .DS_Store
 ._*
