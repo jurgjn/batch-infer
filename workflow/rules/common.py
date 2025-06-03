@@ -124,8 +124,13 @@ def alphafold3_read_predictions_multigpu(batch_runtime_hrs=3, c_or_r=[ 1.4445139
     df_['tokens_check'] = (16 < df_['tokens']) & (df_['tokens'] <= 6000)
     df_['pred_isfile'] = df_['pred'].map(os.path.isfile)
 
+    printlen(df_, 'data pipeline outputs')
+    q_ = 'tokens_check'
+    printlenq(df_, q_, 'data pipeline outputs with sequences between 16 and 6000 residues')
+    q_ = 'tokens_check & pred_isfile'
+    printlenq(df_, q_, 'data pipeline outputs structure predictions finished')
     q_ = 'tokens_check & ~pred_isfile'
-    printlenq(df_, q_, 'sequences where predictions can be run:')
+    printlenq(df_, q_, 'data pipeline outputs with missing structure predictions')
 
     df_ = df_.query(q_).sort_values('tokens').reset_index(drop=True)
     predict_runtime = np.poly1d(c_or_r) / (60 * 60)

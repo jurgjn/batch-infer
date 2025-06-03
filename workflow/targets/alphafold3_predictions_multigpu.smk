@@ -4,7 +4,7 @@ include: '../rules/alphafold3_msas.smk'
 
 tsv_ = 'alphafold3_predictions_multigpu.tsv'
 if not os.path.isfile(tsv_):
-    alphafold3_read_predictions_multigpu().to_csv(tsv_, sep='\t', index=False, header=True)
+    alphafold3_read_predictions_multigpu(batch_runtime_hrs=config["alphafold3_predictions_batch_runtime_hrs"]).to_csv(tsv_, sep='\t', index=False, header=True)
 
 ids = pd.read_csv(tsv_, sep='\t').id.tolist()
 

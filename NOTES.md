@@ -1,5 +1,6 @@
 # Notes
-- Improve documentation & examples, e.g. MSA caching 
+- Improve documentation & examples, e.g. MSA caching
+- Add explicit check for input .json 'name' field to match the file name
 - Build & test [v3.0.2](https://github.com/google-deepmind/alphafold3/issues/395) once released
 - Currently only one type of GPU (A100 80GB), can we use others, e.g. A100 40GB?
     - Run AF3 tests as a target:
@@ -10,6 +11,8 @@ and
     - Alternative locations for the public databases, e.g. designated SSD/ramdisk or global scratch?
         - Striping - https://wiki.lustre.org/Configuring_Lustre_File_Striping
     - Batch MSA jobs & download local copy every time (takes ~30mins, traffic considerations?)
+- Token counting (for runtime prediction) only considers amino acids, i.e. no ligand atoms, nucleic acids, PTMs, ...
+- Runtime estimation excludes the featurising step (underestimates with a large number of small predictions)
 - Downstream processing, e.g. scoring biases, interaction patterns, ...
 - Other co-folding methods
 
