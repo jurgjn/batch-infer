@@ -23,7 +23,7 @@ rule alphafold3_msas:
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
         xtra_args = '--norun_inference',
     envmodules:
-        'stack/2024-05', 'gcc/13.2.0',
+        'stack/2024-06', 'python/3.11.6',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     # Re-attempt (failed) MSAs with increasing runtimes (4h, 1d, 3d)
     retries: 3

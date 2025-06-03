@@ -24,7 +24,7 @@ rule alphafold3_predictions:
         xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',
         # Add --jax_compilation_cache_dir <YOUR_DIRECTORY>
     envmodules:
-        'stack/2024-06', 'gcc/12.2.0', 'cuda/12.8.0',
+        'stack/2024-06', 'python/3.11.6',
     shell: """
         TODO_JSONS=$TMPDIR/alphafold_predictions_todo.txt
         echo "{input.json}" | tr ' ' '\\n' > $TODO_JSONS
