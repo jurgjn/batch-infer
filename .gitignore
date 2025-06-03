@@ -1,0 +1,14 @@
+# AlphaFold3 input & output
+alphafold3_jsons/
+alphafold3_msas/
+alphafold3_predictions/
+
+# Snakemake caches, logs, temporary files
+.snakemake/
+.snakemake-eu/
+.snakemake_timestamp
+
+# macOS
+.DS_Store
+._*
+Thumbs.db
