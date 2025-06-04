@@ -38,7 +38,7 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
             xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',
             # Add --jax_compilation_cache_dir <YOUR_DIRECTORY>
         envmodules:
-            'stack/2024-06', 'gcc/12.2.0', 'cuda/12.8.0',
+            'stack/2024-06', 'python/3.11.6',
         resources:
             runtime = '4h',
             mem_mb = 98304,
