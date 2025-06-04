@@ -1,9 +1,6 @@
 
-Stable
-- alphafold3 - data pipeline/MSAs as individual jobs, predictions on all input as a single GPU job
-- alphafold3_msas_only - only run MSAs, one per node
+- `alphafold3_onegpu` starts from input .json-s in `alphafold3_jsons`, runs data pipeline (one per input), and predictions (all as one GPU job)
+- `alphafold3_msas_only` starts from input .json-s in `alphafold3_jsons`, runs data pipeline (one per input)
+- `alphafold3_predictions_multigpu` starts from data pipeline output in `alphafold3_msas`, predicts prediction step input times, groups inputs by size into 4-hour group, submits each group as a separate GPU job
 
-Work-in-progress:
-- alphafold3_predictions_batches: partition AF3 prediction across multiple GPU nodes
-- alphafold3_multimer: run interactions at scale by auto-generating multimer MSAs from monomer MSAs on-the-fly
-- alphafold3_tests: run prediction on all GPU models available on Euler
+- `alphafold3_tests` runs predictions on all available GPU models
