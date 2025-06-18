@@ -19,9 +19,10 @@ and
 | Name       | Repo    |
 | ---------- | ------- |
 | AlphaFold3 | [google-deepmind/alphafold3](https://github.com/google-deepmind/alphafold3) |
-| Boltz-1    | [jwohlwend/boltz](https://github.com/jwohlwend/boltz) |
+| Boltz      | [jwohlwend/boltz](https://github.com/jwohlwend/boltz) |
 | Chai-1     | [chaidiscovery/chai-lab](https://github.com/chaidiscovery/chai-lab) |
 | HelixFold  | [PaddlePaddle/PaddleHelix](https://github.com/PaddlePaddle/PaddleHelix/tree/dev/apps/protein_folding/helixfold) |
 | Ligo       | [Ligo-Biosciences/AlphaFold3](https://github.com/Ligo-Biosciences/AlphaFold3) |
 | OpenFold3  | [(TBD)](https://bsky.app/profile/moalquraishi.bsky.social/post/3lbeqspkunc2w) | 
+| PIONEER2.0 | [preprint, no code?](https://doi.org/10.1101/2025.06.09.658393) |
 | Protenix   | [bytedance/Protenix](https://github.com/bytedance/Protenix) |
