@@ -163,3 +163,8 @@ def alphafold3_write_monomer(af3_id, seq):
             fh.write(json_ % (af3_id, seq))
     else:
         print('skipping', path)
+
+def read_fasta(path, stop=None):
+    import Bio, Bio.SeqIO
+    columns = ['id', 'seq']
+    return pd.DataFrame.from_records([ (r.id, str(r.seq)) for r in itertools.islice(Bio.SeqIO.parse(path, 'fasta'), stop) ], columns=columns)

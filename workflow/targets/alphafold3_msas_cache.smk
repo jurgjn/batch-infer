@@ -1,4 +1,8 @@
 
+include: '../rules/common.smk'
+
+ids = pd.read_csv('alphafold3_msas_cache.txt', comment='#', names=['id'])['id'].tolist()
+
 def load_json_(file):
     with gzip.open(file, 'rt') as fh:
         return json.load(fh)
@@ -40,19 +44,23 @@ def write_multimer_json_(file_out, *files_in, seeds='1'):
   "userCCD": null
 }""" % (name_, sequences_, seeds))
 
-def alphafold3_msasm_input(wildcards):
-    return [ f'alphafold3_msas/{id_i}_data.json.gz' for id_i in wildcards.id.split('_') ]    
+def alphafold3_msas_input(wildcards):
+    return [ os.path.join(config['alphafold3_msas_cache'], f'{id_i}_data.json.gz') for id_i in wildcards.id.split('_') ]    
 
-localrules: alphafold3_msasm
+localrules: alphafold3_msas
 
-rule alphafold3_msasm:
+rule alphafold3_msas:
     """
     Write an alphafold3 multimer .json based on monomer .jsons (assumes amino acids only)
         $ gunzip -c alphafold3_msasm/mapk1_dusp6_data.json.gz | less -S
     """
     input:
-        json = alphafold3_msasm_input,
+        json = alphafold3_msas_input,
     output:
-        json = 'alphafold3_msasm/{id}_data.json.gz',
+        json = 'alphafold3_msas/{id}_data.json.gz',
     run:
         write_multimer_json_(output.json, *input.json)
+
+rule alphafold3_msas_cache:
+    input:
+        expand('alphafold3_msas/{id}_data.json.gz', id=ids),

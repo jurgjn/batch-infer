@@ -1,0 +1,7 @@
+# https://www.nature.com/articles/s41586-023-06739-5/figures/5
+# Ahp1 - P38013 - p38013
+# Tsa1 - P34760 - p34760
+# Tsa2 - Q04120 - q04120 
+p38013_p34760
+p34760_q04120
+p38013_q04120
