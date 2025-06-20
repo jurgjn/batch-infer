@@ -23,6 +23,8 @@
 set-threads:
   - alphafold3_msas=4 # Reducing this from 8 (default) to 4 increases CPU utilization from 30-50 to 90%
   - alphafold3_predictions=4
+  - boltz_predict=4
+  - colabfold_predict=4
   - colabfold_msas=24
   - colabfold_predictions=1
   - helixfold3_run_infer=4
@@ -87,6 +89,11 @@ set-resources:
     mem_mb: 65536
     disk_mb: 65536
     slurm_extra: "'--gpus=a100_80gb%1 --gres=gpumem%80g'"
+  boltz_predict:
+    runtime: 1h
+    mem_mb: 65536
+    disk_mb: 65536
+    slurm_extra: "'--gpus=1 --gres=gpumem%24g'"
   colabfold_msas:
     runtime: 7d
     mem_mb: 196608
@@ -119,7 +126,7 @@ use-envmodules: True
 restart-times: 0
 #jobs: 100 # Reduced from default (500) to keep CPU efficiency at ~90% when running alphafold3_msas at scale
 #jobs: 200
-#jobs: 300
+jobs: 300
 #jobs: 400
 #jobs: 500
 # Set up `fs` storage plugin to have rsync to/from local scratch as the default I/O pattern
