@@ -1,52 +1,27 @@
-# Adapted from: https://github.com/jwohlwend/boltz/pull/38
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE} AS builder
+# See also:
+# https://github.com/jwohlwend/boltz/pull/38
+# https://github.com/google-deepmind/alphafold3/blob/main/docker/Dockerfile
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  git \
-  build-essential \
-  python3 \
-  python3-venv \
-  python3-dev \
-  && python3 -m venv /opt/venv \
-  && . /opt/venv/bin/activate \
-  && pip install --no-cache-dir --upgrade pip \
-  && pip install --no-cache-dir boltz \
-  && apt-get purge -y git build-essential \
-  && apt-get autoremove -y \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+FROM nvidia/cuda:12.8.0-base-ubuntu24.04
 
-FROM ${BASE_IMAGE}
+ARG BOLTZ_VERSION
 
-COPY --from=builder /opt/venv /opt/venv
+RUN DEBIAN_FRONTEND=noninteractive \
+    apt-get update --quiet \
+    && apt-get install --yes --quiet python3.12 python3-pip python3.12-venv python3.12-dev \
+    && apt-get install --yes --quiet git wget gcc g++ make zlib1g-dev zstd
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-  python3 \
-  && apt-get autoremove -y \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN python3 -m venv /boltz_venv
+ENV PATH="/boltz_venv/bin:$PATH"
 
-ENV PATH="/opt/venv/bin:$PATH" \
-  LANG=C.UTF-8 \
-  PYTHONUNBUFFERED=1
+RUN pip3 install --no-cache-dir --upgrade pip
 
-ARG USERNAME=boltz
-ARG UID=900
-ARG GID=900
-RUN groupadd --gid $GID $USERNAME && \
-  useradd --uid $UID --gid $GID --create-home --shell /bin/bash $USERNAME
+ENV BOLTZ_VERSION=${BOLTZ_VERSION}
 
-WORKDIR /app
+RUN pip3 install --no-cache-dir setuptools \
+    && pip3 install --no-cache-dir boltz==${BOLTZ_VERSION}
 
-COPY LICENSE /app/LICENSE
-COPY README.md /app/README.md
-COPY examples /app/examples
-COPY scripts /app/scripts
-COPY docs /app/docs
-
-RUN chown -R $USERNAME:$USERNAME /app
-
-USER $USERNAME
+# Solves numba-related `RuntimeError: cannot cache function`
+ENV NUMBA_CACHE_DIR=/tmp/numba_cache
 
 ENTRYPOINT ["boltz"]
