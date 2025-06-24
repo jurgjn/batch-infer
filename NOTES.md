@@ -1,4 +1,5 @@
 # Notes
+- Anecdotally, public databases on global scratch seem faster than the SIS copy on project/
 - Improve documentation & examples, e.g. MSA caching
 - Add explicit check for input .json 'name' field to match the file name
 - Build & test [v3.0.2](https://github.com/google-deepmind/alphafold3/issues/395) once released
@@ -26,3 +27,15 @@ and
 | OpenFold3  | [(TBD)](https://bsky.app/profile/moalquraishi.bsky.social/post/3lbeqspkunc2w) | 
 | PIONEER2.0 | [preprint, no code?](https://doi.org/10.1101/2025.06.09.658393) |
 | Protenix   | [bytedance/Protenix](https://github.com/bytedance/Protenix) |
+
+- Simple Euler setup:
+```
+# Add to .bashrc:
+module load stack/2024-06 python/3.12.8
+
+# Install bash kernel:
+pip install bash_kernel
+python -m bash_kernel.install
+
+# VSCode connect to SSH: euler.ethz.ch
+```

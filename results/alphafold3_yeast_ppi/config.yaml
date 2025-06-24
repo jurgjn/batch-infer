@@ -1,4 +1,4 @@
 # Edit to specify location of your AF3 model parameters (example location below will not work)
 alphafold3_models: /cluster/work/beltrao/jjaenes/24.11.13_af3_models
-alphafold3_databases: /cluster/scratch/jjaenes/public_databases_yeast
-alphafold3_msas_cache: /cluster/project/beltrao/jjaenes/25.06.03_batch-infer/results/alphafold3_yeast/alphafold3_msas
+alphafold3_databases: /cluster/project/alphafold/alphafold3
+alphafold3_msas_cache: /cluster/work/beltrao/jjaenes/25.06.20_alphafold3_yeast/alphafold3_msas
