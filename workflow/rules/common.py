@@ -118,7 +118,8 @@ def alphafold3_read_predictions_multigpu(batch_runtime_hrs=3, c_or_r=[ 1.4445139
 
     df_ = pd.DataFrame({'id': ids})
     df_['json'] = df_['id'].map(lambda id: f'alphafold3_jsons/{id}.json')
-    df_['tokens'] = df_['json'].map(alphafold3_json_tokens)
+    df_['data'] = df_['id'].map(lambda id: f'alphafold3_msas/{id}_data.json.gz')
+    df_['tokens'] = df_['data'].map(alphafold3_json_tokens)
     df_['pred'] = df_['id'].map(lambda id: f'alphafold3_predictions/{id}/{id}_model.cif.gz')
 
     df_['tokens_check'] = (16 < df_['tokens']) & (df_['tokens'] <= 6000)
@@ -154,7 +155,7 @@ def alphafold3_write_monomer(af3_id, seq):
   ],
   "modelSeeds": [4],
   "dialect": "alphafold3",
-  "version": 2
+  "version": 1
 }
 """
     path = f'alphafold3_jsons/{af3_id}.json'
