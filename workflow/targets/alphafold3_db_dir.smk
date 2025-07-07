@@ -17,9 +17,10 @@ rule alphafold3_db_dir:
     params:
         db_dir = config['alphafold3']['db_dir'],
         fetch_databases_url = config['alphafold3']['fetch_databases_url'],
-    threads: 8
+    threads: 10
     resources:
         runtime = '4h',
+        mem_mb = 98304,
     envmodules: *config['envmodules']
     shell: """
         cd {params.db_dir}
