@@ -1,3 +1,3 @@
 boltz:
   cache: /cluster/scratch/jjaenes/boltz_cache
-  container: /cluster/project/beltrao/shared/alphafold3/images/boltz-eu.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/boltz-2.1.1.sif
