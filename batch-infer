@@ -9,23 +9,19 @@ PROFILE=`pwd`/software/smk-simple-slurm-eu
 cat - <<EOF
 #!/usr/bin/env bash
 #SBATCH --job-name=$JOBNAME
-#SBATCH --ntasks=1
-#SBATCH --mem-per-cpu=16G
+#SBATCH --ntasks=64
+#SBATCH --mem-per-cpu=2G
 #SBATCH --tmp=16834
 #SBATCH --time=7-00:00:00
 #SBATCH --output=$LOGS_DATE/$JOBNAME-%j.txt
-module load stack/2024-06 python/3.11.6 eth_proxy
+module load stack/.2024-06-silent python/3.11.6 eth_proxy
 if [ ! -f software/venvs/batch-infer-venv/bin/activate ]; then
     software/smk-simple-slurm-eu/venv-create.sh software/venvs/batch-infer-venv
 fi
 source software/venvs/batch-infer-venv/bin/activate
-if [ $1 == "colabfold" ]; then
-    snakemake $1_all --profile=$PROFILE --directory $2 --configfile $2/config.yml --rerun-triggers input $3
-else
-    snakemake $1 --snakefile workflow/targets/$1.smk \\
-        --configfile workflow/config/defaults.yaml $2/config.yaml \\
-        --profile=$PROFILE --workflow-profile=workflow/profiles/default \\
-        --directory $2 --rerun-triggers input $3
-fi
+snakemake $1 --snakefile workflow/targets/$1.smk \\
+    --configfile workflow/config/defaults.yaml $2/config.yaml \\
+    --profile=$PROFILE --workflow-profile=workflow/profiles/default \\
+    --directory $2 --rerun-triggers input $3
 myjobs -j \$SLURM_JOB_ID
 EOF
