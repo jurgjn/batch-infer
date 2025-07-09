@@ -4,6 +4,8 @@ from pprint import pprint
 
 import numpy as np, pandas as pd
 
+import humanfriendly
+
 def uf(x):
     return '{:,}'.format(x)
 
@@ -76,11 +78,21 @@ def root_path(path):
 def alphafold3_jobname(s):
     """
     AF3 job names are lower case, numeric, -._
-    https://github.com/google-deepmind/alphafold3/blob/main/src/alphafold3/common/folding_input.py#L919-L923
+    https://github.com/google-deepmind/alphafold3/blob/v3.0.1/src/alphafold3/common/folding_input.py#L857-L861
     """
     def is_allowed(c):
         return c.islower() or c.isnumeric() or c in set('-._')
-    return ''.join(filter(is_allowed, s.strip().lower().replace(' ', '-').replace('_', '-')))
+    return ''.join(filter(is_allowed, s.strip().lower().replace(' ', '_')))
+
+def alphafold3_read_json(path):
+    if path.endswith('.gz'):
+        fh = gzip.open(path, 'rt')
+    else:
+        fh = open(path, 'r')
+    return json.load(fh)
+
+def alphafold3_read_json_name(path):
+    return alphafold3_read_json(path)['name']
 
 def alphafold3_json_tokens(path):
     if path.endswith('.gz'):
@@ -102,7 +114,10 @@ def alphafold3_read_jsons():
     ids, = snakemake.io.glob_wildcards('alphafold3_jsons/{id}.json')
     df_ = pd.DataFrame({'id': ids})
     df_['json'] = df_['id'].map(lambda id: f'alphafold3_jsons/{id}.json')
+    df_['name'] = df_['json'].map(alphafold3_read_json_name)
     df_['tokens'] = df_['json'].map(alphafold3_json_tokens)
+    assert (df_['name'] == df_['name'].map(alphafold3_jobname)).all(), 'name field contains illegal characters'
+    assert (df_['id'] == df_['name']).all(), 'name field in a .json does not match the file name'
     return df_
 
 def msasm_tokens_(ids):
@@ -112,7 +127,7 @@ def msasm_tokens_(ids):
     df_['tokens'] = df_['data'].map(alphafold3_json_tokens)
     return df_['tokens'].sum()
 
-def alphafold3_read_predictions_multigpu(batch_runtime_hrs=3, c_or_r=[ 1.44451398e-04, -1.18261348e-01,  5.38503478e+01]):
+def alphafold3_read_predictions_multigpu(batch_runtime_hrs, tokens_min, tokens_max, c_or_r=[ 1.44451398e-04, -1.18261348e-01,  5.38503478e+01]):
     import snakemake.io
     ids, = snakemake.io.glob_wildcards('alphafold3_msas/{id}_data.json.gz')
 
@@ -122,12 +137,12 @@ def alphafold3_read_predictions_multigpu(batch_runtime_hrs=3, c_or_r=[ 1.4445139
     df_['tokens'] = df_['data'].map(alphafold3_json_tokens)
     df_['pred'] = df_['id'].map(lambda id: f'alphafold3_predictions/{id}/{id}_model.cif.gz')
 
-    df_['tokens_check'] = (16 < df_['tokens']) & (df_['tokens'] <= 6000)
+    df_['tokens_check'] = (tokens_min <= df_['tokens']) & (df_['tokens'] <= tokens_max)
     df_['pred_isfile'] = df_['pred'].map(os.path.isfile)
 
     printlen(df_, 'data pipeline outputs')
     q_ = 'tokens_check'
-    printlenq(df_, q_, 'data pipeline outputs with sequences between 16 and 6000 residues')
+    printlenq(df_, q_, f'data pipeline outputs with sequences between {tokens_min} and {tokens_max} residues')
     q_ = 'tokens_check & pred_isfile'
     printlenq(df_, q_, 'data pipeline outputs structure predictions finished')
     q_ = 'tokens_check & ~pred_isfile'
