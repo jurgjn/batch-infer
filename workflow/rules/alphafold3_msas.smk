@@ -11,10 +11,10 @@ rule alphafold3_msas:
         # bind paths
         af_input = '--bind alphafold3_jsons:/root/af_input',
         af_output = '--bind alphafold3_msas:/root/af_output',
-        models = f'--bind {config["alphafold3_models"]}:/root/models',
-        databases = f'--bind {config["alphafold3_databases"]}:/root/public_databases',
+        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         #databases_fallback = f'--bind {config["alphafold3_databases_fallback"]}:/root/public_databases_fallback',
-        docker = root_path(config['alphafold3_docker']),
+        docker = root_path(config["alphafold3"]["container"]),
         # run_alphafold.py
         json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}.json',
         output_dir = '--output_dir=/root/af_output',
@@ -22,11 +22,10 @@ rule alphafold3_msas:
         db_dir = '--db_dir=/root/public_databases',
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
         xtra_args = '--norun_inference',
-    envmodules:
-        'stack/2024-06', 'python/3.11.6',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     # Re-attempt (failed) MSAs with increasing runtimes (4h, 1d, 3d)
     retries: 3
+    envmodules: *config['envmodules_offline']
     shell: """
         SMKDIR=`pwd`
         rsync -auq $SMKDIR/ $TMPDIR --include='alphafold3_jsons' --include='{input.json}' --exclude='*'

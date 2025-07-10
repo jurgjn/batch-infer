@@ -10,10 +10,10 @@ rule alphafold3_predictions:
         # bind paths
         af_input = '--bind alphafold3_msas:/root/af_input',
         af_output = lambda wildcards: '--bind alphafold3_predictions:/root/af_output',
-        models = f'--bind {config["alphafold3_models"]}:/root/models',
-        databases = f'--bind {config["alphafold3_databases"]}:/root/public_databases',
+        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         scripts = f'--bind {root_path("workflow/scripts")}:/app/scripts',
-        docker = root_path(config['alphafold3_docker']),
+        docker = root_path(config["alphafold3"]["container"]),
         # run_alphafold.py
         #json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}/{wc.id}_data.json',
         input_dir = '--input_dir=/root/af_input',
@@ -23,8 +23,7 @@ rule alphafold3_predictions:
         # https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md
         xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',
         # Add --jax_compilation_cache_dir <YOUR_DIRECTORY>
-    envmodules:
-        'stack/2024-06', 'python/3.11.6',
+    envmodules: *config['envmodules_offline']
     shell: """
         TODO_JSONS=$TMPDIR/alphafold_predictions_todo.txt
         echo "{input.json}" | tr ' ' '\\n' > $TODO_JSONS
