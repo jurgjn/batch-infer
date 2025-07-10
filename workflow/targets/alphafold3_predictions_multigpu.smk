@@ -4,7 +4,15 @@ include: '../rules/alphafold3_msas.smk'
 
 tsv_ = 'alphafold3_predictions_multigpu.tsv'
 if not os.path.isfile(tsv_):
-    alphafold3_read_predictions_multigpu(batch_runtime_hrs=config["alphafold3_predictions_batch_runtime_hrs"]).to_csv(tsv_, sep='\t', index=False, header=True)
+    runtime_sec_ = humanfriendly.parse_timespan(config['alphafold3']['predictions_multigpu_runtime'])
+    runtime_buf_ = runtime_sec_ * config['alphafold3']['predictions_multigpu_buffer_time']
+    runtime_hrs_ = int(runtime_buf_ / (60*60))
+
+    alphafold3_read_predictions_multigpu(
+        batch_runtime_hrs=runtime_hrs_,
+        tokens_min = config['alphafold3']['predictions_multigpu_tokens_min'],
+        tokens_max = config['alphafold3']['predictions_multigpu_tokens_max'],
+    ).to_csv(tsv_, sep='\t', index=False, header=True)
 
 ids = pd.read_csv(tsv_, sep='\t').id.tolist()
 
@@ -24,10 +32,10 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
             # bind paths
             af_input = '--bind alphafold3_msas:/root/af_input',
             af_output = lambda wildcards: '--bind alphafold3_predictions:/root/af_output',
-            models = f'--bind {config["alphafold3_models"]}:/root/models',
-            databases = f'--bind {config["alphafold3_databases"]}:/root/public_databases',
+            models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+            databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
             scripts = f'--bind {root_path("workflow/scripts")}:/app/scripts',
-            docker = root_path(config['alphafold3_docker']),
+            docker = root_path(config["alphafold3"]["container"]),
             # run_alphafold.py
             #json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}/{wc.id}_data.json',
             input_dir = '--input_dir=/root/af_input',
@@ -37,13 +45,12 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
             # https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md
             xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',
             # Add --jax_compilation_cache_dir <YOUR_DIRECTORY>
-        envmodules:
-            'stack/2024-06', 'python/3.11.6',
         resources:
-            runtime = '4h',
+            runtime = config['alphafold3']['predictions_multigpu_runtime'],
             mem_mb = 98304,
             disk_mb = 98304,
             slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
+        envmodules: *config['envmodules_offline']
         shell: """
             TODO_JSONS=$TMPDIR/alphafold_predictions_todo.txt
             echo "{input.json}" | tr ' ' '\\n' > $TODO_JSONS
