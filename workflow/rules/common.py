@@ -1,5 +1,5 @@
 
-import glob, gzip, functools, inspect, itertools, json, os, os.path, string
+import glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string
 from pprint import pprint
 
 import numpy as np, pandas as pd
@@ -66,6 +66,17 @@ def printlenq(frame, q, *args, **kwargs):
 #        "'--gpus=1 --gres=gpumem%3A40g'",
 #    ][attempt - 1]
 
+@functools.cache
+def ntasks_eu():
+    try:
+        return int(os.environ['SLURM_NTASKS'])
+    except:
+        return int(os.system('nproc --all'))
+
+def map_eu(function, iterable):
+	with multiprocessing.Pool(ntasks_eu()) as pool:
+		return pool.map(function, iterable)
+
 def root_path(path):
     """
     https://snakemake.readthedocs.io/en/stable/project_info/faq.html#how-does-snakemake-interpret-relative-paths
@@ -74,6 +85,15 @@ def root_path(path):
     > This can be achieved by accessing their path via the workflow.source_path, which (a) computes the correct path relative to the current Snakefile such that the file can be accessed from any working directory
     """
     return os.path.join(os.path.abspath(f'{workflow.basedir}/../..'), path)
+
+def alphafold3_json_path(id):
+    return f'alphafold3_jsons/{id}.json'
+
+def alphafold3_data_path(id):
+    return f'alphafold3_msas/{id}_data.json.gz'
+
+def alphafold3_pred_path(id):
+    return f'alphafold3_predictions/{id}/{id}_model.cif.gz'
 
 def alphafold3_jobname(s):
     """
@@ -179,6 +199,24 @@ def alphafold3_write_monomer(af3_id, seq):
             fh.write(json_ % (af3_id, seq))
     else:
         print('skipping', path)
+
+def alphafold3_gather_ids(include_jsons=True, include_msas=False, include_predictions=False):
+    if include_jsons:
+        ids_jsons_, = glob_wildcards('alphafold3_jsons/{id}.json')
+    else:
+        ids_jsons_ = set()
+
+    if include_msas:
+        ids_msas_, = glob_wildcards('alphafold3_msas/{id}_data.json.gz')
+    else:
+        ids_msas_ = set()
+
+    if include_predictions:
+        ids_predictions_, = glob_wildcards('alphafold3_predictions/{id}/{id}_model.cif.gz')
+    else:
+        ids_predictions_ = set()
+    
+    return set(ids_jsons_) | set(ids_msas_) | set(ids_predictions_)
 
 def read_fasta(path, stop=None):
     import Bio, Bio.SeqIO
