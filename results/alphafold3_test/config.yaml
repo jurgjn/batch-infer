@@ -1,2 +1,2 @@
 alphafold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_0422023.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.1.sif
