@@ -33,7 +33,7 @@ if __name__ == '__main__':
     if not('dialect' in js.keys()):
         js['dialect'] = 'alphafold3'
     #if not('version' in js.keys()):
-    #js['version'] = js_cache['version']
+    js['version'] = js_cache['version']
     if not('bondedAtomPairs' in js.keys()):
         js['bondedAtomPairs'] = None
     if not('userCCD' in js.keys()):
