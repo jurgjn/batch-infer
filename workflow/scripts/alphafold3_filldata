@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+
+import argparse, collections, copy, glob, gzip, itertools, json, os, re, string, sys
+from pprint import pprint
+
+def eprint(*args, **kwargs):
+    # https://stackoverflow.com/questions/5574702/how-do-i-print-to-stderr-in-python
+    print(*args, file=sys.stderr, **kwargs)
+
+def read_json(path):
+    with gzip.open(path, 'r') as fh:
+        js = json.load(fh, object_pairs_hook=collections.OrderedDict)
+    return js
+
+if __name__ == '__main__':
+    #cache_dir = 'alphafold3_msas/'
+    cache_dir = sys.argv[1]
+    eprint(cache_dir, 'as cache dir')
+    cache_files = glob.glob(os.path.join(cache_dir, '*_data.json.gz'))
+    cache_seq = [read_json(cache_file)['sequences'][0]['protein']['sequence'] for cache_file in cache_files]
+    cache = dict(zip(cache_seq, cache_files))
+
+    js = json.load(sys.stdin, object_pairs_hook=collections.OrderedDict)
+    for sequence in js['sequences']:
+        if 'protein' in sequence.keys():
+            protein = sequence['protein']
+            js_cache = read_json(cache[ protein['sequence'] ])
+            protein['modifications'] = []
+            protein['unpairedMsa'] = js_cache['sequences'][0]['protein']['unpairedMsa']
+            protein['pairedMsa'] = js_cache['sequences'][0]['protein']['pairedMsa']
+            protein['templates'] = js_cache['sequences'][0]['protein']['templates'].copy()
+
+    if not('dialect' in js.keys()):
+        js['dialect'] = 'alphafold3'
+    #if not('version' in js.keys()):
+    #js['version'] = js_cache['version']
+    if not('bondedAtomPairs' in js.keys()):
+        js['bondedAtomPairs'] = None
+    if not('userCCD' in js.keys()):
+        js['userCCD'] = None
+
+    # https://github.com/google-deepmind/alphafold3/blob/v3.0.1/src/alphafold3/common/folding_input.py#L1284-L1290
+    default_order = ['dialect', 'version', 'name', 'sequences', 'modelSeeds', 'bondedAtomPairs', 'userCCD']
+    for field in default_order:
+        js.move_to_end(field)
+
+    js_str = json.dumps(js, indent=2)
+    # https://github.com/google-deepmind/alphafold3/blob/v3.0.1/src/alphafold3/common/folding_input.py#L1294-L1302
+    js_str_enc = re.sub(
+        r'("(?:queryIndices|templateIndices)": \[)([\s\n\d,]+)(\],?)',
+        lambda mtch: mtch[1] + re.sub(r'\n\s+', ' ', mtch[2].strip()) + mtch[3],
+        js_str,
+    )
+    sys.stdout.write(js_str_enc)
