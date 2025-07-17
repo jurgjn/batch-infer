@@ -1,5 +1,5 @@
 
-import glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string
+import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string
 from pprint import pprint
 
 import numpy as np, pandas as pd
@@ -148,15 +148,8 @@ def msasm_tokens_(ids):
     return df_['tokens'].sum()
 
 def alphafold3_read_predictions_multigpu(batch_runtime_hrs, tokens_min, tokens_max, c_or_r=[ 1.44451398e-04, -1.18261348e-01,  5.38503478e+01]):
-    import snakemake.io
-    ids, = snakemake.io.glob_wildcards('alphafold3_msas/{id}_data.json.gz')
-
-    df_ = pd.DataFrame({'id': ids})
-    df_['json'] = df_['id'].map(lambda id: f'alphafold3_jsons/{id}.json')
-    df_['data'] = df_['id'].map(lambda id: f'alphafold3_msas/{id}_data.json.gz')
-    df_['tokens'] = df_['data'].map(alphafold3_json_tokens)
+    df_ = alphafold3_read_jsons()
     df_['pred'] = df_['id'].map(lambda id: f'alphafold3_predictions/{id}/{id}_model.cif.gz')
-
     df_['tokens_check'] = (tokens_min <= df_['tokens']) & (df_['tokens'] <= tokens_max)
     df_['pred_isfile'] = df_['pred'].map(os.path.isfile)
 
@@ -199,6 +192,26 @@ def alphafold3_write_monomer(af3_id, seq):
             fh.write(json_ % (af3_id, seq))
     else:
         print('skipping', path)
+
+def alphafold3_write_json(name, proteins, modelSeeds=[4], dialect='alphafold3', version=1):
+    path = f'alphafold3_jsons/{name}.json'
+    js = collections.OrderedDict([
+        ('name', name),
+        ('sequences', []),
+        ('modelSeeds', modelSeeds),
+        ('dialect', dialect),
+        ('version', version)
+    ])
+    for chain, sequence in zip(string.ascii_uppercase[1:], proteins):
+        protein = collections.OrderedDict([
+            ('protein', collections.OrderedDict([
+                ('id', chain),
+                ('sequence', sequence),
+            ]))
+        ])
+        js['sequences'].append(protein)
+    with open(path, 'w') as fh:
+        fh.write(json.dumps(js, indent=2))
 
 def alphafold3_gather_ids(include_jsons=True, include_msas=False, include_predictions=False):
     if include_jsons:

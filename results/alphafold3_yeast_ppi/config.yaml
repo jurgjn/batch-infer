@@ -1,4 +1,7 @@
-# Edit to specify location of your AF3 model parameters (example location below will not work)
-alphafold3_models: /cluster/work/beltrao/jjaenes/24.11.13_af3_models
-alphafold3_databases: /cluster/project/alphafold/alphafold3
-alphafold3_msas_cache: /cluster/work/beltrao/jjaenes/25.06.20_alphafold3_yeast/alphafold3_msas
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.1.sif
+  db_dir: /cluster/scratch/jjaenes/25.07.16_public_databases_v3.0.1
+  fetch_databases_url: https://raw.githubusercontent.com/google-deepmind/alphafold3/refs/tags/v3.0.1/fetch_databases.sh
+  msas_cache: /cluster/work/beltrao/jjaenes/25.06.20_alphafold3_yeast/alphafold3_msas
+  predictions_multigpu_runtime: 4h
+  predictions_multigpu_buffer_time: 0.8
