@@ -23,13 +23,14 @@ if __name__ == '__main__':
             cache = json.load(fh)
         eprint(len(cache), 'records loaded')
     else:
-        eprint(cache_path, 'no cache found')
+        eprint(cache_path, 'no cache found, generating')
         cache_files = glob.glob(os.path.join(cache_dir, '*_data.json.gz'))
         cache_seq = [read_json(cache_file)['sequences'][0]['protein']['sequence'] for cache_file in cache_files]
         cache = dict(zip(cache_seq, cache_files))
         with open(cache_path, 'w') as fh:
             json.dump(cache, fh)
-        eprint(len(cache), 'records written')
+        eprint(len(cache), 'records written, exiting')
+        sys.exit(0)
 
     if sys.stdin.isatty():
         eprint('No input detected, exiting')
