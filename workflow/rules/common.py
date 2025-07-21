@@ -1,5 +1,5 @@
 
-import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string
+import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string, zipfile
 from pprint import pprint
 
 import numpy as np, pandas as pd

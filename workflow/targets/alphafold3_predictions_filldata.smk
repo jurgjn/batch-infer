@@ -1,8 +1,9 @@
 
 include: '../rules/common.smk'
 
-tsv_ = 'alphafold3_predictions_multigpu.tsv'
+tsv_ = f'alphafold3_predictions/.alphafold3_predictions_filldata.tsv'
 if not os.path.isfile(tsv_):
+    os.makedirs(os.path.dirname(tsv_), exist_ok=True)
     runtime_sec_ = humanfriendly.parse_timespan(config['alphafold3']['predictions_multigpu_runtime'])
     runtime_buf_ = runtime_sec_ * config['alphafold3']['predictions_multigpu_buffer_time']
     runtime_hrs_ = int(runtime_buf_ / (60*60))
@@ -25,8 +26,7 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
         input:
             json = expand('alphafold3_jsons/{id}.json', id=df_batch.id.tolist()),
         output:
-            cifs = expand('alphafold3_predictions/{id}/{id}_model.cif.gz', id=df_batch.id.tolist()),
-            # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
+            cifs = expand('alphafold3_predictions/{id}.zip', id=df_batch.id.tolist()),
         params:
             # bind paths
             af_input = '--bind alphafold3_msas:/root/af_input',
@@ -48,12 +48,12 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
             xtra_args = '--norun_data_pipeline',
         resources:
             runtime = config['alphafold3']['predictions_multigpu_runtime'],
-            #mem_mb = 98304,
-            #disk_mb = 98304,
-            #slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
-            mem_mb = 65536,
-            disk_mb = 65536,
-            slurm_extra = "'--gpus=rtx_4090%1 --gres=gpumem%24g'",
+            mem_mb = 98304,
+            disk_mb = 98304,
+            slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
+            #mem_mb = 65536,
+            #disk_mb = 65536,
+            #slurm_extra = "'--gpus=rtx_4090%1 --gres=gpumem%24g'",
         envmodules: *config['envmodules_offline']
         shell: """
             SMKDIR=`pwd`
@@ -82,11 +82,14 @@ for batch_id, df_batch in pd.read_csv(tsv_, sep='\t').groupby('batch_id'):
                     {params.db_dir} \
                     {params.xtra_args}'
             cd -
-            gzip -r $TMPDIR/alphafold3_predictions/
-            echo Running rsync from $TMPDIR to $SMKDIR
-            rsync -auv $TMPDIR/alphafold3_predictions $SMKDIR/
+
+            cd $TMPDIR/alphafold3_predictions
+            for ALPHAFOLD3_ID in $ALPHAFOLD3_IDS; do
+                echo Compressing predictions to $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip
+                zip -r $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip $ALPHAFOLD3_ID
+            done
         """
 
-rule alphafold3_predictions_ppi:
+rule alphafold3_predictions_filldata:
     input:
-        expand('alphafold3_predictions/{id}/{id}_model.cif.gz', id=ids),
+        expand('alphafold3_predictions/{id}.zip', id=ids),
