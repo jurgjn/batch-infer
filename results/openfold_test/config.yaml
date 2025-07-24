@@ -3,3 +3,7 @@ openfold:
   container: /cluster/project/beltrao/shared/alphafold3/images/openfold_v2.2.0.sif
   database: /cluster/project/alphafold/
   params: /cluster/project/alphafold/params
+
+singularity:
+  container_dir: /cluster/project/beltrao/shared/alphafold3/images/
+  pull: docker://jurgjn/openfold:latest
