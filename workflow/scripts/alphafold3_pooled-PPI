@@ -12,7 +12,7 @@ from pprint import pprint
 def eprint(*args, **kwargs): # https://stackoverflow.com/questions/5574702/how-do-i-print-to-stderr-in-python
     print(*args, file=sys.stderr, **kwargs)
 
-@numba.jit(nopython=True) # https://github.com/numba/numba/issues/5894#issuecomment-974701551
+@numba.jit(nopython=True, nogil=True) # https://github.com/numba/numba/issues/5894#issuecomment-974701551
 def numba_ix(arr, rows, cols):
     """
     Numba compatible implementation of arr[np.ix_(rows, cols)] for 2D arrays.
@@ -30,7 +30,7 @@ def numba_ix(arr, rows, cols):
     slice_1d = np.take(arr_1d, one_d_index)
     return slice_1d.reshape((len(rows), len(cols)))
 
-@numba.jit(nopython=True)
+@numba.jit(nopython=True, nogil=True)
 def calculate_replication_fraction(pool, i, sizes, cov, all, max_size):
     """
     Calculate fraction of effort replicated in the current pool if i were to be added
@@ -50,7 +50,7 @@ def calculate_replication_fraction(pool, i, sizes, cov, all, max_size):
     #repl_factor = pool_cov.sum() / pool_all.sum()
     return numba_ix(cov, pool_ix, pool_ix).sum() / numba_ix(all, pool_ix, pool_ix).sum()
 
-@numba.jit(nopython=True)
+@numba.jit(nopython=True, parallel=True, nogil=True)
 def pool_expand(pool, sizes, cov, all, max_size):
     """
     Find protein to expand pool while optimising for replication factor
