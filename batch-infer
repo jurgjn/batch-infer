@@ -6,6 +6,12 @@ LOGS_DATE=$2/.snakemake-eu/logs/`date +"%y-%m-%d"`
 RESULTS_PREFIX_ENC=`echo -n $2 | sed -e 's#/#-#g'`
 JOBNAME="batch-infer:$1=$RESULTS_PREFIX_ENC"
 PROFILE=`pwd`/software/smk-simple-slurm-eu
+# Use prefix-specific config file if one exists
+if [ -f $2/config.yaml ]; then
+    CONFIGFILE_LOCAL=$2/config.yaml
+else
+    CONFIGFILE_LOCAL=""
+fi
 cat - <<EOF
 #!/usr/bin/env bash
 #SBATCH --job-name=$JOBNAME
@@ -20,7 +26,7 @@ if [ ! -f software/venvs/batch-infer-venv/bin/activate ]; then
 fi
 source software/venvs/batch-infer-venv/bin/activate
 snakemake $1 --snakefile workflow/targets/$1.smk \\
-    --configfile workflow/config/defaults.yaml $2/config.yaml \\
+    --configfile workflow/config/defaults.yaml $CONFIGFILE_LOCAL \\
     --profile=$PROFILE --workflow-profile=workflow/profiles/default \\
     --directory $2 --rerun-triggers input $3
 myjobs -j \$SLURM_JOB_ID
