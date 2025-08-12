@@ -17,9 +17,9 @@ rule alphafold3_pooledPPI_run:
         tsv = 'alphafold3_jsons/.alphafold3_pooledPPI_pools.tsv'
     params:
         alphafold3_pooledPPI = root_path('workflow/scripts/alphafold3_pooled-PPI'),
-    threads: 64
+    threads: 96
     resources:
-        runtime = '1d',
+        runtime = '3d',
         mem_mb = 98304,
         disk_mb = 98304,
         slurm_extra = "'--constraint=\"EPYC_9654\"'", #https://scicomp.ethz.ch/wiki/Euler#CPU_Nodes
