@@ -11,7 +11,7 @@ rule alphafold3_run_data_test:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
     resources:
-        runtime = '4h',
+        runtime = '1h',
         mem_mb = 65536,
         disk_mb = 65536,
     envmodules: *config['envmodules_offline']
@@ -19,7 +19,7 @@ rule alphafold3_run_data_test:
         cd $TMPDIR
         echo Contents of $TMPDIR
         ls -l $TMPDIR
-        singularity exec --nv --writable-tmpfs {params.models} {params.databases} {params.docker} \
+        singularity exec --writable-tmpfs {params.models} {params.databases} {params.docker} \
             sh -c 'cd /app/alphafold && python run_alphafold_data_test.py \
                 {params.model_dir} \
                 {params.db_dir}'
@@ -38,7 +38,7 @@ rule alphafold3_run_test:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
     resources:
-        runtime = '4h',
+        runtime = '1h',
         mem_mb = 98304,
         disk_mb = 98304,
         slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
