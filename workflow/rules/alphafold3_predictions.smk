@@ -23,6 +23,11 @@ rule alphafold3_predictions:
         # https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md
         xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',
         # Add --jax_compilation_cache_dir <YOUR_DIRECTORY>
+    resources:
+        runtime = config['alphafold3']['predictions']['runtime'],
+        mem_mb = config['alphafold3']['predictions']['mem_mb'],
+        disk_mb = config['alphafold3']['predictions']['disk_mb'],
+        slurm_extra = config['alphafold3']['predictions']['slurm_extra'],
     envmodules: *config['envmodules_offline']
     shell: """
         TODO_JSONS=$TMPDIR/alphafold_predictions_todo.txt
