@@ -15,6 +15,8 @@ alphafold3:
   predictions_multigpu_tokens_max: 5120
   predictions_multigpu_runtime: 4h
   predictions_multigpu_buffer_time: 0.8
+  msas:
+    retries: 3
   predictions:
     runtime: 4h
     mem_mb: 98304

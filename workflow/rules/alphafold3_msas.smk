@@ -24,7 +24,7 @@ rule alphafold3_msas:
         xtra_args = '--norun_inference',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     # Re-attempt (failed) MSAs with increasing runtimes (4h, 1d, 3d)
-    retries: 3
+    retries: config['alphafold3']['msas']['retries']
     envmodules: *config['envmodules_offline']
     shell: """
         SMKDIR=`pwd`
