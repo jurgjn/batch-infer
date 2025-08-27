@@ -21,6 +21,7 @@ rule alphafold3_msas:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
+        max_template_date = f'--max_template_date="{config["alphafold3"]["max_template_date"]}"',
         xtra_args = '--norun_inference',
     # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     # Re-attempt (failed) MSAs with increasing runtimes (4h, 1d, 3d)
@@ -37,6 +38,7 @@ rule alphafold3_msas:
                 {params.output_dir} \
                 {params.model_dir} \
                 {params.db_dir} \
+                {params.max_template_date} \
                 {params.xtra_args}'
         cd -
         gzip $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json

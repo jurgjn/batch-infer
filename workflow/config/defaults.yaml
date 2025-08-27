@@ -6,6 +6,10 @@ alphafold3:
   container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.1.sif
   #container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.0.sif
   db_dir: /cluster/project/alphafold/alphafold3
+  # AlphaFold 3 default cutoff - https://github.com/google-deepmind/alphafold3/blob/main/run_alphafold.py#L206
+  max_template_date: 2021-09-30
+  # Turn off templates - https://pdb101.rcsb.org/motm/142
+  #max_template_date: 1970-01-01
   model_dir: ~/.alphafold3_model_dir
   fetch_databases_url: https://raw.githubusercontent.com/google-deepmind/alphafold3/refs/tags/v3.0.1/fetch_databases.sh
   # https://alphafold.ebi.ac.uk/faq
