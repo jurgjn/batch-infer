@@ -1,0 +1,23 @@
+{
+    "name": "1AAR_polybonds",
+    "sequences": [
+        {
+            "protein": {
+                "id": "A",
+                "sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG"
+            }
+        },
+        {
+            "protein": {
+                "id": "B",
+                "sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG"
+            }
+        }
+    ],
+    "modelSeeds": [ 1 ],
+    "dialect": "alphafold3",
+    "version": 1,
+    "bondedAtomPairs": [
+        [["A", 76, "C"], ["B", 48, "NZ"]]
+    ]
+}

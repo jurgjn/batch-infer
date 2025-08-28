@@ -1,0 +1,20 @@
+{
+    "name": "1AAR_seqonly",
+    "sequences": [
+        {
+            "protein": {
+                "id": "A",
+                "sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG"
+            }
+        },
+        {
+            "protein": {
+                "id": "B",
+                "sequence": "MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG"
+            }
+        }
+    ],
+    "modelSeeds": [ 1 ],
+    "dialect": "alphafold3",
+    "version": 1
+}

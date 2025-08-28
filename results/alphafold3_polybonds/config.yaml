@@ -1,0 +1,10 @@
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_2e2ffc1.sif
+  max_template_date: 1970-01-01
+  msas:
+    retries: 0
+  predictions:
+    runtime: 1h
+    mem_mb: 65536
+    disk_mb: 65536
+    slurm_extra: "'--gpus=rtx_4090%1 --gres=gpumem%24g'"
