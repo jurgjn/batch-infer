@@ -1,5 +1,6 @@
 alphafold3:
   container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_2e2ffc1.sif
+  # Run without templates:
   max_template_date: 1970-01-01
   msas:
     retries: 0
