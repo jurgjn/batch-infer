@@ -28,13 +28,13 @@ alphafold3:
     slurm_extra: "'--gpus=1 --gres=gpumem%80g'"
 
 envmodules: # sync with batch-infer, software/smk-simple-slurm-eu/venv-create.sh
-- stack/.2024-06-silent
-- python/3.11.6
+- stack/2025-06
+- python/3.13.0
 - eth_proxy
 
 envmodules_offline:
-- stack/.2024-06-silent
-- python/3.11.6
+- stack/2025-06
+- python/3.13.0
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/
