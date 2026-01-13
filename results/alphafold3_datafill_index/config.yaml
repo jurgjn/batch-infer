@@ -1,0 +1,5 @@
+
+alphafold3:
+  data_sources: >-
+    --data_dir=/cluster/project/beltrao/jjaenes/25.06.03_batch-infer/results/alphafold3_yeast/alphafold3_msas
+    --data_dir=/cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas
