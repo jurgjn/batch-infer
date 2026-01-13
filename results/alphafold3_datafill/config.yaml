@@ -6,9 +6,7 @@ alphafold3:
     --data_dir=/cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas
   predictions:
     singularity_args: ''
-    run_alphafold_args: >-
-      --norun_data_pipeline
-      --num_recycles=3
+    run_alphafold_args: ''
     run_alphafold_wrapper: run_alphafold_shard_default.sh
     runtime: 1h
     mem_mb: 16384

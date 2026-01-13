@@ -42,12 +42,12 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             # bind paths
             bind_input = '--bind alphafold3_msas:/root/af_input',
             bind_output = '--bind alphafold3_predictions:/root/af_output',
-            bind_models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
-            bind_databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
-            bind_scripts = f'--bind {root_path("workflow/scripts")}:/app/scripts',
+            bind_models = f"--bind {config['alphafold3']['model_dir']}:/root/models",
+            bind_databases = f"--bind {config['alphafold3']['db_dir']}:/root/public_databases",
+            bind_scripts = f"--bind {root_path('workflow/scripts')}:/app/scripts",
             # run_alphafold.py
             run_alphafold_wrapper = config['alphafold3']['predictions']['run_alphafold_wrapper'],
-            run_alphafold_args = config['alphafold3']['predictions']['run_alphafold_args'],
+            run_alphafold_args = f"--norun_data_pipeline {config['alphafold3']['predictions']['run_alphafold_args']}",
             run_alphafold_dirs = '--input_dir=/root/af_input --output_dir=/root/af_output --model_dir=/root/models --db_dir=/root/public_databases',
         resources:
             runtime = config['alphafold3']['predictions']['runtime'],

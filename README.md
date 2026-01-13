@@ -19,6 +19,7 @@ Clone the repository:
 cd /cluster/scratch/$USER
 git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
+git checkout develop
 ```
 
 Edit 
@@ -26,9 +27,9 @@ Edit
 to locate your AlphaFold3 model parameters. These are
 [obtained from DeepMind on a per-user basis](https://github.com/google-deepmind/alphafold3?tab=readme-ov-file#obtaining-model-parameters).
 
-Start the pipeline with:
+Run a dry run on tests to finish installation (e.g. install packages):
 ```
-./batch-infer alphafold3_onegpu results/alphafold3_adhoc_examples | sbatch
+./batch-infer alphafold3_tests results/alphafold3_tests --dry-run | sbatch
 ```
 
-See [alphafold3_adhoc_examples.ipynb](results/alphafold3_adhoc_examples/alphafold3_adhoc_examples.ipynb) for a more detailed walk-through.
+See [results/alphafold3_datafill](results/alphafold3_datafill) for a more detailed walk-through.
