@@ -26,6 +26,9 @@ BATCH_INFER_TARGET="$BATCH_INFER_TARGET"
 RESULTS_PREFIX="$RESULTS_PREFIX"
 XTRA_ARGS="$XTRA_ARGS"
 module load stack/2025-06 python/3.13.0 eth_proxy
+if [ ! -f $BATCH_INFER_DIR/.venv/bin/activate ]; then
+    source $BATCH_INFER_DIR/software/venv/create
+fi
 source $BATCH_INFER_DIR/.venv/bin/activate
 snakemake $BATCH_INFER_TARGET $XTRA_ARGS \\
     --snakefile $BATCH_INFER_DIR/workflow/targets/$BATCH_INFER_TARGET.smk \\

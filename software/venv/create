@@ -1,0 +1,12 @@
+echo Loading envmodules
+module load stack/2025-06 python/3.13.0 eth_proxy
+echo Creating environment
+python3 -m venv $BATCH_INFER_DIR/.venv
+echo Activating environment
+source $BATCH_INFER_DIR/.venv/bin/activate
+echo Installing dependancies from software/venv/requirements.txt
+pip3 install -r $BATCH_INFER_DIR/software/venv/requirements.txt
+echo Running bash_kernel post-install step
+python3 -m bash_kernel.install
+echo Creating batch-infer symlink
+ln -sf $BATCH_INFER_DIR/batch-infer $BATCH_INFER_DIR/.venv/bin/
