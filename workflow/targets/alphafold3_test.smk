@@ -38,9 +38,9 @@ rule alphafold3_run_test:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
     resources:
-        runtime = '1h',
-        mem_mb = 98304,
-        disk_mb = 98304,
+        runtime = '15min',
+        mem_mb = 16384,
+        disk_mb = 16384,
         slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
     envmodules: *config['envmodules_offline']
     shell: """

@@ -18,7 +18,7 @@ cat - <<EOF
 #SBATCH --job-name=$JOBNAME
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4G
-#SBATCH --tmp=16834
+#SBATCH --tmp=16G
 #SBATCH --time=7-00:00:00
 #SBATCH --output=$LOGS_DATE/$JOBNAME-%j.txt
 BATCH_INFER_DIR="$BATCH_INFER_DIR"

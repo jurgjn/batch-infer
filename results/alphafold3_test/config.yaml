@@ -1,6 +1,6 @@
 alphafold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_a8ecdb2.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/
-  pull: docker://jurgjn/alphafold3:a8ecdb2
+  pull: docker://jurgjn/alphafold3:b78e215 

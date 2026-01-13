@@ -1,6 +1,7 @@
 
 alphafold3:
   # https://hub.docker.com/r/jurgjn/alphafold3
+  #container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif
   #container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_2e2ffc1.sif
   #container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_0422023.sif
   container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.1.sif
@@ -20,6 +21,7 @@ alphafold3:
   predictions_multigpu_runtime: 4h
   predictions_multigpu_buffer_time: 0.8
   msas:
+    # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     retries: 3
   predictions:
     runtime: 4h
