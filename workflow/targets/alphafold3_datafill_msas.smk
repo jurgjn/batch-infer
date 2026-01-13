@@ -61,5 +61,6 @@ rule alphafold3_datafill_msas:
         activate = root_path('.venv/bin/activate'),
     shell: """
         source {params.activate}
+        mkdir -p alphafold3_msas/
         af3io data-fill --data_dir alphafold3_msas --write-index
     """

@@ -14,5 +14,6 @@ rule alphafold3_datafill_missing:
     envmodules: *config['envmodules']
     shell: """
         source {params.activate}
+        mkdir -p {output.missing_dir}
         af3io data-fill {params.data_sources} --input_dir {input.input_dir} --missing_dir {output.missing_dir}
     """
