@@ -10,5 +10,5 @@ alphafold3:
     runtime: 1h
     mem_mb: 16384
     disk_mb: 16384
-    #slurm_extra: '--gpus=a100_80gb:1 --gres=gpumem:80g'
-    slurm_extra: '--gpus=1 --gres=gpumem:90g'
+    slurm_extra: '--gpus=nvidia_a100_80gb_pcie:1 --gres=gpumem:80g'
+    #slurm_extra: '--gpus=nvidia_rtx_pro_6000:1 --gres=gpumem:90g'
