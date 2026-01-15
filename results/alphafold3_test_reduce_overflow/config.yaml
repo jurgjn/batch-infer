@@ -1,0 +1,14 @@
+
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif
+  data_sources: >-
+    --data_dir=/cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas
+  predictions:
+    singularity_args: ''
+    run_alphafold_args: ''
+    run_alphafold_wrapper: run_alphafold_shard_default.sh
+    runtime: 1h
+    mem_mb: 16384
+    disk_mb: 16384
+    #slurm_extra: '--gpus=a100_80gb:1 --gres=gpumem:80g'
+    slurm_extra: '--gpus=1 --gres=gpumem:90g'

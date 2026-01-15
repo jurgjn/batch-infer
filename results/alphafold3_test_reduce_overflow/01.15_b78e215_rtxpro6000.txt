@@ -1,0 +1,179 @@
+host: eu-g7-001
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 64
+Rules claiming more threads will be scaled down.
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Jan 15 12:00:59 2026]
+localrule alphafold3_datafill_predictions_batch0_1:
+    input: alphafold3_jsons/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2.json
+    output: alphafold3_predictions/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2.zip
+    jobid: 0
+    reason: Forced execution
+    resources: mem_mb=16384, mem_mib=15625, disk_mb=16384, disk_mib=15625, tmpdir=/scratch/tmp.54259492.jjaenes, runtime=60, slurm_extra=--gpus=1 --gres=gpumem:90g
+Shell command: 
+            source /cluster/project/beltrao/jjaenes/26.01_batch-infer/.venv/bin/activate
+            SMKDIR=`pwd`
+            mkdir -p $TMPDIR/alphafold3_msas
+            ALPHAFOLD3_IDS="pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2"
+            for ALPHAFOLD3_ID in $ALPHAFOLD3_IDS; do
+                echo ALPHAFOLD3_ID: "$ALPHAFOLD3_ID"
+                JSON=alphafold3_jsons/"$ALPHAFOLD3_ID".json
+                echo JSON: "$JSON"
+                OUTPUT_DIR="$TMPDIR"/alphafold3_msas/
+                echo OUTPUT_DIR: "$OUTPUT_DIR"
+                af3io data-fill --data_dir=/cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas --data_dir=alphafold3_msas --json_path="$JSON" --output_dir="$OUTPUT_DIR"
+            done
+            ls -l $TMPDIR/alphafold3_msas
+            
+            mkdir -p $TMPDIR/alphafold3_predictions
+            cd $TMPDIR
+            echo Contents of $TMPDIR
+            ls -l $TMPDIR
+            singularity exec --nv --writable-tmpfs                                  --bind alphafold3_msas:/root/af_input                 --bind alphafold3_predictions:/root/af_output                 --bind ~/.alphafold3_model_dir:/root/models                 --bind /cluster/project/alphafold/alphafold3:/root/public_databases                 --bind /cluster/project/beltrao/jjaenes/26.01_batch-infer/workflow/scripts:/app/scripts                 /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif                 sh -c '/app/scripts/run_alphafold_shard_default.sh --norun_data_pipeline  --input_dir=/root/af_input --output_dir=/root/af_output --model_dir=/root/models --db_dir=/root/public_databases'
+            cd -
+
+            cd $TMPDIR/alphafold3_predictions
+            for ALPHAFOLD3_ID in $ALPHAFOLD3_IDS; do
+                OUT_DATA="$ALPHAFOLD3_ID"/"$ALPHAFOLD3_ID"_data.json
+                echo Remove redundant data pipeline output "$OUT_DATA"
+                rm $OUT_DATA
+                echo Compressing predictions to $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip
+                zip -r $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip $ALPHAFOLD3_ID
+            done
+        
+Activating environment modules: stack/2025-06, python/3.13.0
+ALPHAFOLD3_ID: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2
+JSON: alphafold3_jsons/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2.json
+OUTPUT_DIR: /scratch/tmp.54259492.jjaenes/alphafold3_msas/
+Load data index from: /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/.af3io_data_index.json
+Read 20224 protein, 0 dna, 0 rna sequence(s)
+Load data index from: alphafold3_msas/.af3io_data_index.json
+Read 0 protein, 0 dna, 0 rna sequence(s)
+Data index has 20224 protein, 0 dna, 0 rna sequence(s)
+Read:	alphafold3_jsons/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2.json
+	fill id=B from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/a0avf1_data.json.gz
+	fill id=C from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/p33981_data.json.gz
+	fill id=D from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/p50607_data.json.gz
+	fill id=E from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q495m9_data.json.gz
+	fill id=F from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q5w5x9_data.json.gz
+	fill id=G from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q8na56_data.json.gz
+	fill id=H from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q8tam2_data.json.gz
+	fill id=I from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q8ww24_data.json.gz
+	fill id=J from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q96c74_data.json.gz
+	fill id=K from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q9nzn9_data.json.gz
+	fill id=L from id=A in /cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas/q9p0n5_data.json.gz
+Write:	/scratch/tmp.54259492.jjaenes/alphafold3_msas/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_data.json
+total 198976
+-rw-r--r-- 1 jjaenes jjaenes-group 203749319 Jan 15 12:01 pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_data.json
+Contents of /scratch/tmp.54259492.jjaenes
+total 0
+drwxr-xr-x 2 jjaenes jjaenes-group 84 Jan 15 12:01 alphafold3_msas
+drwxr-xr-x 2 jjaenes jjaenes-group 10 Jan 15 12:01 alphafold3_predictions
+drwx------ 2 jjaenes jjaenes-group 10 Jan 15 12:00 snakemakep4emcd_m
+Running nvidia-smi
+Thu Jan 15 12:01:07 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.105.08             Driver Version: 580.105.08     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 6000 Blac...    On  |   00000000:21:00.0 Off |                    0 |
+| N/A   30C    P8             34W /  600W |       0MiB /  97887MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Finished nvidia-smi
+Starting run_alphafold.py
+/alphafold3_venv/lib/python3.12/site-packages/keras/src/export/tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1768474879.943841 3782514 gpu_device.cc:2431] TensorFlow was not built with CUDA kernel binaries compatible with compute capability 12.0. CUDA kernels will be jit-compiled from PTX, which could take 30 minutes or longer.
+INFO:2026-01-15 12:01:21,735:jax._src.xla_bridge:812: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I0115 12:01:21.735121 22530949079808 xla_bridge.py:812] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+W0115 12:01:21.969284 3782536 cuda_executor.cc:1802] GPU interconnect information not available: INTERNAL: NVML doesn't support extracting fabric info or NVLink is not used by the device.
+W0115 12:01:21.974932 3782514 cuda_executor.cc:1802] GPU interconnect information not available: INTERNAL: NVML doesn't support extracting fabric info or NVLink is not used by the device.
+
+Running AlphaFold 3. Please note that standard AlphaFold 3 model parameters are
+only available under terms of use provided at
+https://github.com/google-deepmind/alphafold3/blob/main/WEIGHTS_TERMS_OF_USE.md.
+If you do not agree to these terms and are using AlphaFold 3 derived model
+parameters, cancel execution of AlphaFold 3 inference with CTRL-C, and do not
+use the model parameters.
+
+Found local devices: [CudaDevice(id=0)], using device 0: cuda:0
+Building model from scratch...
+Checking that model parameters can be loaded...
+
+Running fold job pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2...
+Output will be written in /root/af_output/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2
+Skipping data pipeline...
+Writing model input JSON to /root/af_output/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_data.json
+Predicting 3D structure for pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2 with 1 seed(s)...
+Featurising data with 1 seed(s)...
+Featurising data with seed 4.
+I0115 12:01:31.749423 22530949079808 pipeline.py:173] processing pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2, random_seed=4
+I0115 12:01:32.364763 22530949079808 pipeline.py:266] Calculating bucket size for input with 5035 tokens.
+I0115 12:01:32.365043 22530949079808 pipeline.py:272] Got bucket size 5120 for input with 5035 tokens, resulting in 85 padded tokens.
+/alphafold3_venv/lib/python3.12/site-packages/numpy/_core/fromnumeric.py:83: RuntimeWarning: overflow encountered in reduce
+  return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+Featurising data with seed 4 took 91.11 seconds.
+Featurising data with 1 seed(s) took 96.96 seconds.
+Running model inference and extracting output structure samples with 1 seed(s)...
+Running model inference with seed 4...
+I0115 12:03:03.277778 22530949079808 cache.py:95] Autotuning cache file not found: /alphafold3_venv/lib/python3.12/site-packages/tokamax/data/autotuning/nvidia_rtx_pro_6000_blackwell_server_edition/pallas_triton_gated_linear_unit.json
+I0115 12:03:03.447485 22530949079808 cache.py:95] Autotuning cache file not found: /alphafold3_venv/lib/python3.12/site-packages/tokamax/data/autotuning/nvidia_rtx_pro_6000_blackwell_server_edition/pallas_triton_flash_attention.json
+/alphafold3_venv/lib/python3.12/site-packages/alphafold3/model/network/featurization.py:104: UserWarning: Explicitly requested dtype int64 requested in broadcasted_iota is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  iota = jax.lax.broadcasted_iota(jnp.int64, logits.shape, axis)
+Running model inference with seed 4 took 1491.22 seconds.
+Extracting inference results with seed 4...
+Extracting 5 inference samples with seed 4 took 18.99 seconds.
+Running model inference and extracting output structures with 1 seed(s) took 1510.21 seconds.
+Writing outputs with 1 seed(s)...
+Fold job pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2 done, output written to /root/af_output/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2
+
+Done running 1 fold jobs.
+/cluster/project/beltrao/jjaenes/26.01_batch-infer/results/alphafold3_test_reduce_overflow
+Remove redundant data pipeline output pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_data.json
+Compressing predictions to /cluster/project/beltrao/jjaenes/26.01_batch-infer/results/alphafold3_test_reduce_overflow/alphafold3_predictions/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2.zip
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-0/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-0/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-0_model.cif (deflated 74%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-0/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-0_summary_confidences.json (deflated 78%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-0/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-0_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-1/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-1/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-1_model.cif (deflated 74%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-1/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-1_summary_confidences.json (deflated 79%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-1/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-1_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-2/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-2_model.cif (deflated 75%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-2_summary_confidences.json (deflated 78%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-2_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-3/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-3/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-3_model.cif (deflated 75%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-3/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-3_summary_confidences.json (deflated 77%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-3/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-3_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-4/ (stored 0%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-4/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-4_model.cif (deflated 75%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-4/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-4_summary_confidences.json (deflated 78%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/seed-4_sample-4/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_seed-4_sample-4_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_model.cif (deflated 75%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_summary_confidences.json (deflated 78%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_confidences.json (deflated 96%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/TERMS_OF_USE.md (deflated 63%)
+  adding: pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2/pools_cilia_5cbd09fce7d60eebf529bad34bb77804b3ea32d2_ranking_scores.csv (deflated 27%)
+[Thu Jan 15 12:29:23 2026]
+Finished jobid: 0 (Rule: alphafold3_datafill_predictions_batch0_1)
+1 of 1 steps (100%) done
+Storing output in storage.
