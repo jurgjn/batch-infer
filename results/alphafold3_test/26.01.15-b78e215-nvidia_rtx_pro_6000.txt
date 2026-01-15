@@ -1,0 +1,186 @@
+host: eu-g7-001
+Building DAG of jobs...
+Using shell: /usr/bin/bash
+Provided cores: 64
+Rules claiming more threads will be scaled down.
+Select jobs to execute...
+Execute 1 jobs...
+
+[Thu Jan 15 11:22:16 2026]
+localrule alphafold3_run_test:
+    output: alphafold3_test.done
+    jobid: 0
+    reason: Forced execution
+    resources: mem_mb=16384, mem_mib=15625, disk_mb=16384, disk_mib=15625, tmpdir=/scratch/tmp.54253728.jjaenes, runtime=15, slurm_extra=--gpus=1 --gres=gpumem:90g
+Shell command: 
+        cd $TMPDIR
+        echo Contents of $TMPDIR
+        ls -l $TMPDIR
+        singularity exec --nv /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif sh -c 'nvidia-smi'
+        singularity exec --nv --writable-tmpfs --bind ~/.alphafold3_model_dir:/root/models --bind /cluster/project/alphafold/alphafold3:/root/public_databases /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif             sh -c 'cd /app/alphafold && python run_alphafold_test.py                 --model_dir=/root/models                 --db_dir=/root/public_databases'
+        cd -
+        echo Contents of $TMPDIR
+        ls -l $TMPDIR
+    
+Activating environment modules: stack/2025-06, python/3.13.0
+Contents of /scratch/tmp.54253728.jjaenes
+total 0
+drwx------ 2 jjaenes jjaenes-group 6 Jan 15 11:22 snakemake31bscogw
+Thu Jan 15 11:22:20 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.105.08             Driver Version: 580.105.08     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX PRO 6000 Blac...    On  |   00000000:81:00.0 Off |                    0 |
+| N/A   32C    P8             36W /  600W |       0MiB /  97887MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+/alphafold3_venv/lib/python3.12/site-packages/keras/src/export/tf2onnx_lib.py:8: FutureWarning: In the future `np.object` will be defined as the corresponding NumPy scalar.
+  if not hasattr(np, "object"):
+Running tests under Python 3.12.3: /alphafold3_venv/bin/python
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+W0000 00:00:1768472553.762203 3775735 gpu_device.cc:2431] TensorFlow was not built with CUDA kernel binaries compatible with compute capability 12.0. CUDA kernels will be jit-compiled from PTX, which could take 30 minutes or longer.
+[ RUN      ] InferenceTest.test_inference_bucket_1024
+INFO:2026-01-15 11:22:35,605:jax._src.xla_bridge:812: Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+I0115 11:22:35.605918 22714565313280 xla_bridge.py:812] Unable to initialize backend 'tpu': INTERNAL: Failed to open libtpu.so: libtpu.so: cannot open shared object file: No such file or directory
+W0115 11:22:35.837790 3775786 cuda_executor.cc:1802] GPU interconnect information not available: INTERNAL: NVML doesn't support extracting fabric info or NVLink is not used by the device.
+W0115 11:22:35.846392 3775735 cuda_executor.cc:1802] GPU interconnect information not available: INTERNAL: NVML doesn't support extracting fabric info or NVLink is not used by the device.
+
+Running fold job 5tgy...
+Output will be written in /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_bucket_1024/tmpegz2zhzt
+Running data pipeline...
+Running data pipeline for chain P...
+I0115 11:22:35.876926 22714565313280 pipeline.py:82] Getting protein MSAs for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN
+I0115 11:22:35.889983 22700523755200 jackhmmer.py:177] Query sequence (non-sharded db): SEFEKLRQTGDELVQA... (len 109)
+I0115 11:22:35.890241 22700523755200 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/jackhmmer -o /dev/null -A /scratch/tmp.54253728.jjaenes/tmpyyb1d_zk/output.sto --noali --F1 0.0005 --F2 5e-05 --F3 5e-07 --cpu 8 -N 1 -E 0.0001 --incE 0.0001 --seq_limit 5000 /scratch/tmp.54253728.jjaenes/tmpyyb1d_zk/query.fasta /alphafold3_venv/lib/python3.12/site-packages/alphafold3/test_data/miniature_databases/bfd-first_non_consensus_sequences__subsampled_1000.fasta"
+I0115 11:22:35.890681 22700527957696 jackhmmer.py:177] Query sequence (non-sharded db): SEFEKLRQTGDELVQA... (len 109)
+I0115 11:22:35.890867 22700527957696 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/jackhmmer -o /dev/null -A /scratch/tmp.54253728.jjaenes/tmp9wttr8ds/output.sto --noali --F1 0.0005 --F2 5e-05 --F3 5e-07 --cpu 8 -N 1 -E 0.0001 --incE 0.0001 --seq_limit 10000 /scratch/tmp.54253728.jjaenes/tmp9wttr8ds/query.fasta /alphafold3_venv/lib/python3.12/site-packages/alphafold3/test_data/miniature_databases/uniref90__subsampled_1000.fasta"
+I0115 11:22:35.891156 22700525856448 jackhmmer.py:177] Query sequence (non-sharded db): SEFEKLRQTGDELVQA... (len 109)
+I0115 11:22:35.891330 22700525856448 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/jackhmmer -o /dev/null -A /scratch/tmp.54253728.jjaenes/tmpts2z0muf/output.sto --noali --F1 0.0005 --F2 5e-05 --F3 5e-07 --cpu 8 -N 1 -E 0.0001 --incE 0.0001 --seq_limit 5000 /scratch/tmp.54253728.jjaenes/tmpts2z0muf/query.fasta /alphafold3_venv/lib/python3.12/site-packages/alphafold3/test_data/miniature_databases/mgy_clusters__subsampled_1000.fa"
+I0115 11:22:35.895277 22700521653952 jackhmmer.py:177] Query sequence (non-sharded db): SEFEKLRQTGDELVQA... (len 109)
+I0115 11:22:35.895467 22700521653952 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/jackhmmer -o /dev/null -A /scratch/tmp.54253728.jjaenes/tmpzcis39kt/output.sto --noali --F1 0.0005 --F2 5e-05 --F3 5e-07 --cpu 8 -N 1 -E 0.0001 --incE 0.0001 --seq_limit 50000 /scratch/tmp.54253728.jjaenes/tmpzcis39kt/query.fasta /alphafold3_venv/lib/python3.12/site-packages/alphafold3/test_data/miniature_databases/uniprot_all__subsampled_1000.fasta"
+I0115 11:22:35.975082 22700525856448 subprocess_utils.py:111] Finished Jackhmmer (mgy_clusters__subsampled_1000.fa) in 0.084 seconds
+I0115 11:22:35.979168 22700523755200 subprocess_utils.py:111] Finished Jackhmmer (bfd-first_non_consensus_sequences__subsampled_1000.fasta) in 0.089 seconds
+I0115 11:22:35.981981 22700527957696 subprocess_utils.py:111] Finished Jackhmmer (uniref90__subsampled_1000.fasta) in 0.091 seconds
+I0115 11:22:35.987756 22700521653952 subprocess_utils.py:111] Finished Jackhmmer (uniprot_all__subsampled_1000.fasta) in 0.092 seconds
+I0115 11:22:35.988088 22714565313280 pipeline.py:115] Getting protein MSAs took 0.11 seconds for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN
+I0115 11:22:35.988127 22714565313280 pipeline.py:121] Deduplicating MSAs for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN
+I0115 11:22:35.988519 22714565313280 pipeline.py:134] Deduplicating MSAs took 0.00 seconds for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN, found 1 unpaired sequences, 1 paired sequences
+I0115 11:22:35.988574 22714565313280 pipeline.py:40] Getting protein templates for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN
+I0115 11:22:35.988852 22714565313280 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/hmmbuild --informat stockholm --hand --amino /scratch/tmp.54253728.jjaenes/tmpwjbstz5h/output.hmm /scratch/tmp.54253728.jjaenes/tmpwjbstz5h/query.msa"
+I0115 11:22:36.025106 22714565313280 subprocess_utils.py:111] Finished Hmmbuild in 0.036 seconds
+I0115 11:22:36.025422 22714565313280 subprocess_utils.py:82] Launching subprocess "/hmmer/bin/hmmsearch --noali --cpu 8 --F1 0.1 --F2 0.1 --F3 0.1 -E 100 --incE 100 --domE 100 --incdomE 100 -A /scratch/tmp.54253728.jjaenes/tmpiij98nqp/output.sto /scratch/tmp.54253728.jjaenes/tmpiij98nqp/query.hmm /alphafold3_venv/lib/python3.12/site-packages/alphafold3/test_data/miniature_databases/pdb_seqres_2022_09_28__subsampled_1000.fasta"
+I0115 11:22:36.080195 22714565313280 subprocess_utils.py:111] Finished Hmmsearch (pdb_seqres_2022_09_28__subsampled_1000.fasta) in 0.055 seconds
+I0115 11:22:36.118203 22714565313280 pipeline.py:52] Getting 4 protein templates took 0.13 seconds for sequence SEFEKLRQTGDELVQAFQRLREIFDKGDDDSLEQVLEEIEELIQKHRQLFDNRQEAADTEAAKQGDQWVQLFQRFREAIDKGDKDSLEQLLEELEQALQKIRELAEKKN
+Running data pipeline for chain P took 0.26 seconds
+Running data pipeline for chain LL...
+Running data pipeline for chain LL took 0.00 seconds
+Writing model input JSON to /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_bucket_1024/tmpegz2zhzt/5tgy_data.json
+Predicting 3D structure for 5tgy with 1 seed(s)...
+Featurising data with 1 seed(s)...
+Featurising data with seed 42.
+I0115 11:22:41.999002 22714565313280 pipeline.py:173] processing 5tgy, random_seed=42
+I0115 11:22:42.007870 22714565313280 pipeline.py:266] Calculating bucket size for input with 150 tokens.
+I0115 11:22:42.008057 22714565313280 pipeline.py:272] Got bucket size 1024 for input with 150 tokens, resulting in 874 padded tokens.
+[11:22:42] UFFTYPER: Unrecognized charge state for atom: 48
+[11:22:42] UFFTYPER: Unrecognized atom type: Zn4+2 (48)
+[11:22:43] UFFTYPER: Unrecognized charge state for atom: 48
+[11:22:43] UFFTYPER: Unrecognized atom type: Zn4+2 (48)
+Featurising data with seed 42 took 1.35 seconds.
+Featurising data with 1 seed(s) took 7.20 seconds.
+Running model inference and extracting output structure samples with 1 seed(s)...
+Running model inference with seed 42...
+/alphafold3_venv/lib/python3.12/site-packages/jax/_src/pjit.py:367: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices(backend="cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+I0115 11:22:46.815769 22714565313280 cache.py:95] Autotuning cache file not found: /alphafold3_venv/lib/python3.12/site-packages/tokamax/data/autotuning/nvidia_rtx_pro_6000_blackwell_server_edition/pallas_triton_gated_linear_unit.json
+I0115 11:22:46.986937 22714565313280 cache.py:95] Autotuning cache file not found: /alphafold3_venv/lib/python3.12/site-packages/tokamax/data/autotuning/nvidia_rtx_pro_6000_blackwell_server_edition/pallas_triton_flash_attention.json
+/alphafold3_venv/lib/python3.12/site-packages/alphafold3/model/network/featurization.py:104: UserWarning: Explicitly requested dtype int64 requested in broadcasted_iota is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  iota = jax.lax.broadcasted_iota(jnp.int64, logits.shape, axis)
+Running model inference with seed 42 took 115.56 seconds.
+Extracting inference results with seed 42...
+Extracting 5 inference samples with seed 42 took 0.12 seconds.
+Running model inference and extracting output structures with 1 seed(s) took 115.68 seconds.
+Writing outputs with 1 seed(s)...
+Fold job 5tgy done, output written to /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_bucket_1024/tmpegz2zhzt
+
+I0115 11:24:39.975673 22714565313280 run_alphafold_test.py:219] finished get_inference_result
+I0115 11:24:40.045021 22714565313280 run_alphafold_test.py:363] Comparing inference results with expected values.
+[       OK ] InferenceTest.test_inference_bucket_1024
+[ RUN      ] InferenceTest.test_inference_default_bucket
+
+Running fold job 5tgy...
+Output will be written in /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_default_bucket/tmpf3seokjt
+Running data pipeline...
+Running data pipeline for chain P...
+Running data pipeline for chain P took 0.02 seconds
+Running data pipeline for chain LL...
+Running data pipeline for chain LL took 0.00 seconds
+Writing model input JSON to /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_default_bucket/tmpf3seokjt/5tgy_data.json
+Predicting 3D structure for 5tgy with 1 seed(s)...
+Featurising data with 1 seed(s)...
+Featurising data with seed 1.
+I0115 11:24:40.105067 22714565313280 pipeline.py:173] processing 5tgy, random_seed=1
+I0115 11:24:40.113592 22714565313280 pipeline.py:266] Calculating bucket size for input with 150 tokens.
+I0115 11:24:40.113650 22714565313280 pipeline.py:272] Got bucket size 150 for input with 150 tokens, resulting in 0 padded tokens.
+[11:24:40] UFFTYPER: Unrecognized charge state for atom: 48
+[11:24:40] UFFTYPER: Unrecognized atom type: Zn4+2 (48)
+[11:24:41] UFFTYPER: Unrecognized charge state for atom: 48
+[11:24:41] UFFTYPER: Unrecognized atom type: Zn4+2 (48)
+Featurising data with seed 1 took 1.20 seconds.
+Featurising data with 1 seed(s) took 1.20 seconds.
+Running model inference and extracting output structure samples with 1 seed(s)...
+Running model inference with seed 1...
+/alphafold3_venv/lib/python3.12/site-packages/jax/_src/pjit.py:367: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices(backend="cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+/alphafold3_venv/lib/python3.12/site-packages/alphafold3/model/network/featurization.py:104: UserWarning: Explicitly requested dtype int64 requested in broadcasted_iota is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  iota = jax.lax.broadcasted_iota(jnp.int64, logits.shape, axis)
+Running model inference with seed 1 took 70.59 seconds.
+Extracting inference results with seed 1...
+Extracting 5 inference samples with seed 1 took 0.10 seconds.
+Running model inference and extracting output structures with 1 seed(s) took 70.69 seconds.
+Writing outputs with 1 seed(s)...
+Fold job 5tgy done, output written to /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_inference_default_bucket/tmpf3seokjt
+
+I0115 11:25:52.924363 22714565313280 run_alphafold_test.py:219] finished get_inference_result
+I0115 11:25:52.992326 22714565313280 run_alphafold_test.py:363] Comparing inference results with expected values.
+[       OK ] InferenceTest.test_inference_default_bucket
+[ RUN      ] InferenceTest.test_model_inference
+/alphafold3_venv/lib/python3.12/site-packages/jax/_src/pjit.py:367: DeprecationWarning: backend and device argument on jit is deprecated. You can use `jax.device_put(..., jax.local_devices(backend="cpu")[0])` on the inputs to the jitted function to get the same behavior.
+  warnings.warn(
+/alphafold3_venv/lib/python3.12/site-packages/alphafold3/model/network/featurization.py:104: UserWarning: Explicitly requested dtype int64 requested in broadcasted_iota is not available, and will be truncated to dtype int32. To enable more dtypes, set the jax_enable_x64 configuration option or the JAX_ENABLE_X64 shell environment variable. See https://github.com/jax-ml/jax#current-gotchas for more.
+  iota = jax.lax.broadcasted_iota(jnp.int64, logits.shape, axis)
+[       OK ] InferenceTest.test_model_inference
+[ RUN      ] InferenceTest.test_process_fold_input_runs_only_inference
+
+Running fold job 5tgy...
+Output will be written in /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_process_fold_input_runs_only_inference/tmpalzuf2hh
+Skipping data pipeline...
+Writing model input JSON to /scratch/tmp.54253728.jjaenes/absl_testing/InferenceTest/test_process_fold_input_runs_only_inference/tmpalzuf2hh/5tgy_data.json
+Predicting 3D structure for 5tgy with 1 seed(s)...
+Featurising data with 1 seed(s)...
+[       OK ] InferenceTest.test_process_fold_input_runs_only_inference
+----------------------------------------------------------------------
+Ran 4 tests in 263.979s
+
+OK
+/cluster/project/beltrao/jjaenes/26.01_batch-infer/results/alphafold3_test
+Contents of /scratch/tmp.54253728.jjaenes
+total 0
+drwxr-xr-x 3 jjaenes jjaenes-group 144 Jan 15 11:25 absl_testing
+drwx------ 2 jjaenes jjaenes-group   6 Jan 15 11:22 snakemake31bscogw
+Touching output file alphafold3_test.done.
+[Thu Jan 15 11:27:01 2026]
+Finished jobid: 0 (Rule: alphafold3_run_test)
+1 of 1 steps (100%) done
+Storing output in storage.

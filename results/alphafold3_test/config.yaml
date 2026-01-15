@@ -1,5 +1,12 @@
 alphafold3:
   container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif
+  test:
+    runtime: 15min
+    mem_mb: 16384
+    disk_mb: 16384
+    # https://docs.hpc.ethz.ch/batchsystem/slurm/#submitting-gpu-jobs
+    slurm_extra: '--gpus=a100_80gb:1 --gres=gpumem:80g'
+    #slurm_extra: '--gpus=1 --gres=gpumem:90g'
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/

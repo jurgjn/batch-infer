@@ -38,10 +38,10 @@ rule alphafold3_run_test:
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
     resources:
-        runtime = '15min',
-        mem_mb = 16384,
-        disk_mb = 16384,
-        slurm_extra = "'--gpus=1 --gres=gpumem%80g'",
+        runtime = config['alphafold3']['test']['runtime'],
+        mem_mb = config['alphafold3']['test']['mem_mb'],
+        disk_mb = config['alphafold3']['test']['disk_mb'],
+        slurm_extra = config['alphafold3']['test']['slurm_extra'],
     envmodules: *config['envmodules_offline']
     shell: """
         cd $TMPDIR
