@@ -5,6 +5,7 @@ cached_path
 click
 foldcomp
 humanfriendly
+ipywidgets
 matplotlib
 numba
 pandas
@@ -14,6 +15,7 @@ pymol-open-source
 pyoxipng
 pyvis
 rcsb.utils.io
+scikit-learn
 scipy
 seaborn
 snakemake
