@@ -10,7 +10,10 @@ rule alphafold3_datafill_missing:
         activate = root_path('.venv/bin/activate'),
         data_sources = config['alphafold3']['data_sources'],
     resources:
-        runtime = '2h',
+        runtime = '1d',
+        mem_mb = 16384,
+        disk_mb = 16384,
+        slurm_extra = '',
     envmodules: *config['envmodules']
     shell: """
         source {params.activate}
