@@ -20,6 +20,8 @@ def make_singleton_batches_():
 
 ids = make_singleton_batches_().id.tolist()
 
+alphafold3_predictions_mem_mb = config['alphafold3']['predictions']['mem_mb']
+
 for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
     #print(batch_id)
     #print(df_batch)
@@ -49,9 +51,12 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             run_alphafold_wrapper = config['alphafold3']['predictions']['run_alphafold_wrapper'],
             run_alphafold_args = f"--norun_data_pipeline {config['alphafold3']['predictions']['run_alphafold_args']}",
             run_alphafold_dirs = '--input_dir=/root/af_input --output_dir=/root/af_output --model_dir=/root/models --db_dir=/root/public_databases',
+        retries: config['alphafold3']['predictions']['retries']
         resources:
             runtime = config['alphafold3']['predictions']['runtime'],
             mem_mb = config['alphafold3']['predictions']['mem_mb'],
+            # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#dynamic-resources
+            #mem_mb = lambda attempt: alphafold3_predictions_mem_mb if isinstance(alphafold3_predictions_mem_mb, int) else alphafold3_predictions_mem_mb[attempt - 1],
             disk_mb = config['alphafold3']['predictions']['disk_mb'],
             slurm_extra = config['alphafold3']['predictions']['slurm_extra'],
         envmodules: *config['envmodules_offline']
