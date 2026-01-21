@@ -1,6 +1,6 @@
 
 alphafold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_b78e215.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.1.sif
   data_sources: >-
     --data_dir=/cluster/project/beltrao/jjaenes/25.06.03_batch-infer/results/alphafold3_yeast/alphafold3_msas
     --data_dir=/cluster/work/beltrao/jjaenes/25.04.02_batch-infer-projects/af3_human/alphafold3_msas
@@ -11,4 +11,4 @@ alphafold3:
     runtime: 1h
     mem_mb: 16384
     disk_mb: 16384
-    slurm_extra: "'--gpus=1 --gres=gpumem%80g'"
+    slurm_extra: '--gpus=a100_80gb:1'
