@@ -1,4 +1,4 @@
-af3io==0.3.0
+af3io==0.5.0
 anyio==4.12.0
 appdirs==1.4.4
 argparse-dataclass==2.0.0

@@ -1,26 +1,38 @@
 
+import os, os.path
+import Bio, Bio.PDB
+import pandas as pd
+
+ids, = glob_wildcards('input_pdb/{id}.pdb')
+
 rule repairpdb:
     """
     Run foldx repairpdb on structure; output the final .pdb, and a .zip archive of the complete output (multiple files per mutation)
     """
     input:
-        pdb = pfile(struct_id='{}', step='{prev_steps}', suffix='.pdb'),
+        pdb = 'input_pdb/{id}.pdb',
     output:
-        pdb = pfile(struct_id='{}', step='{prev_steps}.repairpdb', suffix='.pdb'),
-        #zip = pfile(struct_id='{}', step='{prev_steps}.repairpdb', suffix='.zip'),
+        pdb = 'repairpdb/{id}.pdb',
+        #zip = 'repairpdb/{id}.zip',
     params:
-        foldx_bin = '/cluster/home/jjaenes/project/software/foldx/foldx_20241231',
+        binary = config['foldx']['binary'],
         pdb_dir = lambda wc, input: os.path.dirname(input.pdb),
         pdb_basename = lambda wc, input, output: os.path.basename(input.pdb),
+    threads: 1
+    resources:
+        runtime = lambda wc, attempt: ['4h', '1d', '3d', '1w'][attempt - 1],
+        mem_mb = 4096,
+        disk_mb = 4096,
+    retries: 3
     shell: """
-        OUTPUT_DIR="$TMPDIR/RepairPDB_{wildcards.struct_id}"
+        OUTPUT_DIR="$TMPDIR/RepairPDB_{wildcards.id}"
         mkdir -p $OUTPUT_DIR
-        {params.foldx_bin} --command=RepairPDB --pdb-dir={params.pdb_dir} --pdb={params.pdb_basename} --output-dir=$OUTPUT_DIR
+        {params.binary} --command=RepairPDB --pdb-dir={params.pdb_dir} --pdb={params.pdb_basename} --output-dir=$OUTPUT_DIR
         #cd $OUTPUT_DIR
-        #zip {wildcards.struct_id}.zip *
+        #zip {wildcards.id}.zip *
         #cd -
-        cp $OUTPUT_DIR/{wildcards.struct_id}_Repair.pdb {output.pdb}
-        #cp $OUTPUT_DIR/{wildcards.struct_id}.zip output.zip
+        cp $OUTPUT_DIR/{wildcards.id}_Repair.pdb {output.pdb}
+        #cp $OUTPUT_DIR/{wildcards.id}.zip output.zip
     """
 
 def pssm_positions(file):
@@ -74,37 +86,44 @@ def pssm_write_summary(output_dir, struct_id, out_tsv):
     df_ = df_[cols_]
     df_.to_csv(out_tsv, sep='\t', header=True, index=False)
 
-rule pssm:
+rule repairpdb_pssm:
     """
     Calculate ddG values for all residues using `PssmStability` on a monomer structure
     Pssm segfaults on monomer structures during/after analyseComplex-related steps
     PssmStability seems to be a lightly documented (https://foldxsuite.crg.eu/command/Pssm) version of the Pssm command intended to be used on monomers
     """
     input:
-        pdb = pfile(struct_id='{}', step='{prev_steps}', suffix='.pdb'),
+        pdb = 'repairpdb/{id}.pdb',
     output:
-        #zip = pfile(struct_id='{}', step='{prev_steps}.pssm', suffix='.zip'),
-        tsv = pfile(struct_id='{}', step='{prev_steps}.pssm', suffix='.tsv'),
-        sstat = pfile(struct_id='{}', step='{prev_steps}.pssm', suffix='_sstat.tsv'),
+        tsv = 'repairpdb.pssm/{id}.tsv',
+        #zip = 'repairpdb.pssm/{id}.zip',
     params:
-        foldx_bin = '/cluster/home/jjaenes/project/software/foldx/foldx_20241231',
+        binary = config['foldx']['binary'],
         aminoacids = 'ACDEFGHIKLMNPQRSTVWY', # Bio.SeqUtils.IUPACData.protein_letters
-        positions = lambda wc, input: pssm_positions(input.pdb), #'QA5a,VA6a', #lambda wc, input, output: wc.pos,
+        positions = 'CA143a,PA144a,EA145a', # Q7Z4H8/P144L
+        #positions = lambda wc, input: pssm_positions(input.pdb),
         pdb_dir = lambda wc, input: os.path.dirname(input.pdb),
         pdb_basename = lambda wc, input, output: os.path.basename(input.pdb),
-        output_dir = lambda wc: f'{os.environ["TMPDIR"]}/PssmStability_{wc.struct_id}',
+        output_dir = lambda wc: f'{os.environ["TMPDIR"]}/PssmStability_{wc.id}',
+    threads: 1
     resources:
-        #runtime = lambda wildcards, attempt: ['4h', '1d', '3d', '1w'][attempt - 1]
-        runtime = lambda wildcards, attempt: ['3d', '1w'][attempt - 1]
+        runtime = lambda wc, attempt: ['1d', '3d', '1w'][attempt - 1],
+        mem_mb = 4096,
+        disk_mb = 4096,
+    retries: 2
     run:
-        shell('mkdir -p {params.output_dir}')
-        shell('{params.foldx_bin} --command=PssmStability --aminoacids={params.aminoacids} --positions={params.positions} --pdb-dir={params.pdb_dir} --pdb={params.pdb_basename} --output-dir={params.output_dir}')
+        shell('echo "Creating directory" && mkdir -p {params.output_dir}')
+        shell('{params.binary} --command=PssmStability --aminoacids={params.aminoacids} --positions={params.positions} --pdb-dir={params.pdb_dir} --pdb={params.pdb_basename} --output-dir={params.output_dir}')
         #Uncomment to keep full output as a .zip archive; this will be in GBs per structure
         #shell("""
         #    cd {params.output_dir}
-        #    zip {wildcards.struct_id}.zip *
+        #    zip {wildcards.id}.zip *
         #    cd -
-        #    cp {params.output_dir}/{wildcards.struct_id}.zip {output.zip}
+        #    cp {params.output_dir}/{wildcards.id}.zip {output.zip}
         #""")
-        pssm_write_summary(params.output_dir, wildcards.struct_id, output.tsv)
-        shell("sstat --all --parsable2 --job $SLURM_JOB_ID | tr '|' '\\t' > {output.sstat}")
+        pssm_write_summary(params.output_dir, wildcards.id, output.tsv)
+
+rule foldx_monomer:
+    input:
+        #expand('repairpdb/{id}.pdb', id=ids),
+        expand('repairpdb.pssm/{id}.tsv', id=ids),

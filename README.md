@@ -20,6 +20,7 @@ cd /cluster/scratch/$USER
 git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
 git checkout develop
+BATCH_INFER_DIR=$(pwd); source software/venv/create
 ```
 
 Edit 
