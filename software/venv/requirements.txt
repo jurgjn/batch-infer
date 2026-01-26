@@ -1,4 +1,4 @@
-af3io==0.5.0
+af3io
 anyio==4.12.0
 appdirs==1.4.4
 argparse-dataclass==2.0.0
@@ -96,7 +96,7 @@ parso==0.8.5
 pexpect==4.9.0
 pillow==12.0.0
 platformdirs==4.5.1
-pooled-ppi==0.1.0
+pooled-ppi
 prompt_toolkit==3.0.52
 proto-plus==1.27.0
 protobuf==6.33.2
