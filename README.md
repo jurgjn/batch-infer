@@ -9,28 +9,17 @@ We can use this to group inputs by size, and run one structure prediction job pe
 - Can use monomer data pipeline output to generate the input for multimer structure prediction. This can speed up interaction screens, e.g. protein-protein or protein-ligand...
 
 ## Quick start
-This will run AlphaFold3 for all 
-[input .json files](https://github.com/google-deepmind/alphafold3/blob/main/docs/input.md)
-in
-[results/alphafold3_adhoc_examples/alphafold3_jsons/](results/alphafold3_adhoc_examples/alphafold3_jsons/)
-
-Clone the repository:
+Clone the repository & install dependancies:
 ```
 cd /cluster/scratch/$USER
 git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
+# Switch to develop branch for using pre-computed MSAs
 git checkout develop
-BATCH_INFER_DIR=$(pwd); source software/venv/create
+# Create the batch-infer venv by dry-running tests
+./batch-infer alphafold3_test results/alphafold3_test --dry-run | sbatch
 ```
 
-Edit 
-[results/alphafold3_adhoc_examples/config.yaml](results/alphafold3_adhoc_examples/config.yaml)
-to locate your AlphaFold3 model parameters. These are
-[obtained from DeepMind on a per-user basis](https://github.com/google-deepmind/alphafold3?tab=readme-ov-file#obtaining-model-parameters).
-
-Run a dry run on tests to finish installation (e.g. install packages):
-```
-./batch-infer alphafold3_tests results/alphafold3_tests --dry-run | sbatch
-```
+Copy your AlphaFold 3 model parameters to `~/.alphafold3_model_dir/af3.bin.zst`. The model parameters have to be [obtained from DeepMind on a per-user basis](https://github.com/google-deepmind/alphafold3?tab=readme-ov-file#obtaining-model-parameters).
 
 See [results/alphafold3_datafill](results/alphafold3_datafill) for a more detailed walk-through.

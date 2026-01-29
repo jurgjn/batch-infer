@@ -9,4 +9,4 @@ pip3 install -r $BATCH_INFER_DIR/software/venv/requirements.txt
 echo Running bash_kernel post-install step
 python3 -m bash_kernel.install
 echo Creating batch-infer symlink
-ln -sf $BATCH_INFER_DIR/batch-infer $BATCH_INFER_DIR/.venv/bin/batch-infer
+ln -sf $(realpath $BATCH_INFER_DIR/batch-infer) $(realpath $BATCH_INFER_DIR/.venv/bin/batch-infer)
