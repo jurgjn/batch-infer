@@ -1,0 +1,4 @@
+
+singularity:
+  container_dir: /cluster/project/beltrao/shared/alphafold3/images/
+  pull: docker://jurgjn/esm-variants
