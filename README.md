@@ -22,4 +22,4 @@ git checkout develop
 
 Copy your AlphaFold 3 model parameters to `~/.alphafold3_model_dir/af3.bin.zst`. The model parameters have to be [obtained from DeepMind on a per-user basis](https://github.com/google-deepmind/alphafold3?tab=readme-ov-file#obtaining-model-parameters).
 
-See [results/alphafold3_datafill](results/alphafold3_datafill) for a more detailed walk-through.
+See [results/alphafold3_datafill](results/alphafold3_datafill) for an example with pre-calculated data pipeline output.
