@@ -4,7 +4,7 @@ include: '../rules/common.smk'
 
 ids, = glob_wildcards('alphafold3_missing/{id}.json')
 
-rule alphafold3_msas:
+rule alphafold3_datafill_msas_run:
     """
     Run AF3 data pipeline for one input .json
     """
@@ -29,7 +29,14 @@ rule alphafold3_msas:
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
         max_template_date = f'--max_template_date="{config["alphafold3"]["max_template_date"]}"',
         xtra_args = '--norun_inference',
-    retries: config['alphafold3']['msas']['retries']
+    threads:
+        config['alphafold3']['msas']['threads']
+    retries:
+        config['alphafold3']['msas']['retries']
+    resources:
+        runtime = lambda wc, attempt: ['4h', '1d', '3d', '1w'][attempt - 1],
+        mem_mb = lambda wc, attempt: [65536, 131072, 262144, 262144][attempt - 1],
+        disk_mb = lambda wc, attempt: [65536, 131072, 262144, 262144][attempt - 1],
     envmodules: *config['envmodules_offline']
     shell: """
         source {params.activate}

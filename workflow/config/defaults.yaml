@@ -21,8 +21,8 @@ alphafold3:
   predictions_multigpu_runtime: 4h
   predictions_multigpu_buffer_time: 0.8
   msas:
-    retries: 3 # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
     threads: 4 # Reduced from 8 (default) to 4, increases CPU utilization from 30-50 to 90%
+    retries: 3 # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
   predictions:
     singularity_args: ''
     run_alphafold_args: ''
