@@ -6,7 +6,6 @@ RESULTS_BASENAME=$(basename "$RESULTS_PREFIX")
 XTRA_ARGS="$3"
 LOGS_DATE=$RESULTS_PREFIX/.snakemake-eu/logs/`date +"%y-%m-%d"`
 JOBNAME="batch-infer:$BATCH_INFER_TARGET=$RESULTS_BASENAME"
-PROFILE="$BATCH_INFER_DIR/software/smk-simple-slurm-eu"
 # Use prefix-specific config file if one exists
 if [ -f "$RESULTS_PREFIX/config.yaml" ]; then
     CONFIGFILE_LOCAL="$RESULTS_PREFIX/config.yaml"
@@ -33,8 +32,7 @@ source $BATCH_INFER_DIR/.venv/bin/activate
 snakemake $BATCH_INFER_TARGET $XTRA_ARGS \\
     --snakefile $BATCH_INFER_DIR/workflow/targets/$BATCH_INFER_TARGET.smk \\
     --configfile $BATCH_INFER_DIR/workflow/config/defaults.yaml $CONFIGFILE_LOCAL \\
-    --profile=$PROFILE \\
-    --workflow-profile=$BATCH_INFER_DIR/workflow/profiles/default \\
+    --profile=$BATCH_INFER_DIR/workflow/profiles/default \\
     --directory $RESULTS_PREFIX \\
     --rerun-triggers mtime
 myjobs -j \$SLURM_JOB_ID
