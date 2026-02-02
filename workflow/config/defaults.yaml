@@ -24,9 +24,13 @@ alphafold3:
     threads: 4 # Reduced from 8 (default) to 4, increases CPU utilization from 30-50 to 90%
     retries: 3 # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
   predictions:
+    # Extra arguments to singularity, e.g. set environmental variables to enable unified memory or jax cache
     singularity_args: ''
+    # Extra arguments to DeepMind's run_alphafold.py script, e.g. number of recycles
     run_alphafold_args: ''
+    # Wrapper script (under workflow/scripts) to tweak shard spec for low-memory GPUs
     run_alphafold_wrapper: run_alphafold_shard_default.sh
+    # Safe resource defaults, A100 with plenty of RAM
     retries: 0
     runtime: 4h
     mem_mb: 98304
