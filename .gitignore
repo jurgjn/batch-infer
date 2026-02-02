@@ -10,6 +10,10 @@ alphafold3_predictions/
 .snakemake-eu/
 .snakemake_timestamp
 
+# Large data
+*.pdb
+*.tsv
+
 # Binary files
 *.gz
 
