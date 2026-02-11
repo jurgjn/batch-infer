@@ -1,0 +1,12 @@
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_ebfe70a.sif
+  test:
+    runtime: 15min
+    mem_mb: 16384
+    disk_mb: 16384
+    # https://docs.hpc.ethz.ch/batchsystem/slurm/#submitting-gpu-jobs
+    slurm_extra: '--gpus=a100:1'
+
+singularity:
+  container_dir: /cluster/project/beltrao/shared/alphafold3/images/
+  pull: docker://jurgjn/alphafold3:ebfe70a 
