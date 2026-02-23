@@ -1,6 +1,6 @@
 
 openfold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/openfold3_8a4ff25-eu.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/openfold3_3cfe483-euler1.sif
   base_database_path: /cluster/project/beltrao/jjaenes/26.02_of3_databases
   runtime: 1h
   mem_mb: 86016
@@ -9,4 +9,4 @@ openfold3:
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/
-  pull: docker://jurgjn/openfold3:8a4ff25-eu
+  pull: docker://jurgjn/openfold3:3cfe483-euler1
