@@ -1,1 +1,1 @@
-See also: https://github.com/google-deepmind/alphafold3/issues/236
+See also: [alphafold3#236](https://github.com/google-deepmind/alphafold3/issues/236#issuecomment-3755055172)

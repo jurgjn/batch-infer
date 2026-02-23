@@ -1,0 +1,11 @@
+
+openfold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/openfold3_8a4ff25.sif
+  runtime: 1h
+  mem_mb: 86016
+  disk_mb: 16384
+  slurm_extra: '--gpus=rtx_4090:1 --account=es_beltrao'
+
+singularity:
+  container_dir: /cluster/project/beltrao/shared/alphafold3/images/
+  pull: docker://jurgjn/openfold3:8a4ff25 
