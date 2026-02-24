@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/jurgjn/batch-infer)
+
 # Batch inference of protein structure
 
 Run AlphaFold3 on [Euler](https://scicomp.ethz.ch/wiki/Getting_started_with_clusters) at scale with data pipeline (MSA), and structure prediction steps parallelised across nodes. As an example, the _e. coli_ reference proteome has 4,402 monomers. The data pipeline steps took 2 days with up to 500 CPU jobs running simultaneously. The structure prediction steps took ~4 hours with ~15 GPU jobs running simultaneously. A small number of inputs [failed/had to be re-run](results/alphafold3_ecoli/README.md).
@@ -15,7 +17,7 @@ cd /cluster/scratch/$USER
 git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
 # Switch to develop branch for using pre-computed MSAs
-git checkout develop
+git checkout --recurse-submodules develop
 # Create the batch-infer venv by dry-running tests
 ./batch-infer alphafold3_test results/alphafold3_test --dry-run | sbatch
 ```
