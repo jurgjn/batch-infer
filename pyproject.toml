@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-batch_infer = "batch_infer.cli:cli"
+batch-infer = "batch_infer.cli:cli"
 
 [tool.uv.sources]
 af3io = { workspace = true }
