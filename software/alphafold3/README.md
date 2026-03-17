@@ -1,6 +1,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/jurgjn/alphafold3)](https://hub.docker.com/r/jurgjn/alphafold3)
 
 #### Vanilla [builds](https://github.com/jurgjn/batch-infer/blob/develop/software/alphafold3/build.ipynb), tags match commit/version from [google-deepmind/alphafold3](https://github.com/google-deepmind/alphafold3/)
+- [608edb6](https://github.com/google-deepmind/alphafold3/commit/608edb684db9f6fd0e677fea01c4cefc60f8a8aa)
+from Mar 10 2026
 - [ebfe70a](https://github.com/google-deepmind/alphafold3/commit/ebfe70a27a6a1ad18c77664191c5f7fa486ebee9)
 from Feb 4 2026
 - [b78e215](https://github.com/google-deepmind/alphafold3/tree/b78e2153948a0effc5aa70cbd6b605af693170df)
