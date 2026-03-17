@@ -1,5 +1,5 @@
 alphafold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_ebfe70a.sif
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_608edb6.sif
   test:
     runtime: 15min
     mem_mb: 16384
@@ -9,4 +9,4 @@ alphafold3:
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/
-  pull: docker://jurgjn/alphafold3:ebfe70a 
+  pull: docker://jurgjn/alphafold3:608edb6
