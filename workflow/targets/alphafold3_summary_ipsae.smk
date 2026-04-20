@@ -6,8 +6,8 @@ from pprint import pprint
 # > You're correct -- the dist_cutoff does not change the scores. The first cutoff (the PAE cutoff) is used to calculate the ipSAE scores 
 # > and the nres1 and nres2 numbers reflect the number of residues in chain1 and chain2 respectively that have at least one residue pair 
 # > better than the cutoff with the other chain.
-pae_cutoff = config['alphafold3_summary_ipsae']['pae_cutoff']
-dist_cutoff = config['alphafold3_summary_ipsae']['dist_cutoff']
+pae_cutoff = config['alphafold3']['summary_ipsae']['pae_cutoff']
+dist_cutoff = config['alphafold3']['summary_ipsae']['dist_cutoff']
 
 rule alphafold3_summary_ipsae_run:
     input:

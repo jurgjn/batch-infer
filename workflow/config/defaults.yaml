@@ -36,6 +36,9 @@ alphafold3:
     mem_mb: 98304
     disk_mb: 16384
     slurm_extra: '--gpus=a100:1'
+  summary_ipsae:
+    pae_cutoff: 10
+    dist_cutoff: 10
 
 # https://docs.hpc.ethz.ch/software/software-stack/#spack
 # latest is stack/2025-06; match with batch-infer & software/venv/create
