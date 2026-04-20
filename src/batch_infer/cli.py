@@ -13,11 +13,14 @@ def eprint(*args, **kwargs):
 def cli():
     pass
 
-@cli.command(short_help='Check for files & output sbatch script to start a run')
+#https://click.palletsprojects.com/en/stable/advanced/#forwarding-unknown-options
+@cli.command(short_help='Check for files & output sbatch script to start a run', context_settings=dict(
+    ignore_unknown_options=True,
+))
 @click.argument('target', type=str)
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path))
-@click.option('--dry-run', is_flag=True, default=False)
-def start(target, results_path, dry_run):
+@click.argument('snakemake_args', nargs=-1, type=click.UNPROCESSED)
+def start(target, results_path, snakemake_args):
     """
     Example:
         batch_infer sbatch alphafold3_datafill_missing projects/ubi_ncORFs/pairwise --dry-run | sbatch
@@ -26,11 +29,11 @@ def start(target, results_path, dry_run):
     jobname = f'batch_infer:{target}'
     output_path = results_path / f'.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt'
 
-    activate_path = Path(__file__).parent.parent.parent.resolve() / '.venv/bin/activate'
+    activate_path = Path(__file__).parent.parent.parent.parent.parent.resolve() / '.venv/bin/activate'
     snakefile_path = Path(__file__).parent.parent.parent.resolve() / f'workflow/targets/{target}.smk'
     configfile_path1 = Path(__file__).parent.parent.parent.resolve() / 'workflow/config/defaults.yaml'
     configfile_path2 = results_path / f'config.yaml'
-    for path_ in [activate_path, snakefile_path, configfile_path1, configfile_path2,]:
+    for path_ in [activate_path, snakefile_path, configfile_path1,]:
         if not path_.is_file():
             eprint(f'Not a file: {path_}')
             sys.exit(1)
@@ -41,10 +44,6 @@ def start(target, results_path, dry_run):
             eprint(f'Not a directory: {path_}')
             sys.exit(1)
 
-    xtra_args = ''
-    if dry_run:
-        xtra_args = '--dry-run'
-
     print(f"""#!/usr/bin/env bash
 #SBATCH --job-name={jobname}
 #SBATCH --ntasks=1
@@ -54,9 +53,10 @@ def start(target, results_path, dry_run):
 #SBATCH --output={output_path.resolve()}
 module load stack/2025-06 python/3.13.0 eth_proxy
 source {activate_path.resolve()}
-snakemake {target} {xtra_args} \\
+export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOBID:
+snakemake {target} {' '.join(snakemake_args)} \\
     --snakefile {snakefile_path.resolve()} \\
-    --configfile {configfile_path1.resolve()} {configfile_path2.resolve()} \\
+    --configfile {configfile_path1.resolve()} {configfile_path2.resolve() if configfile_path2.is_file() else ''} \\
     --profile={profile_path.resolve()} \\
     --directory {results_path.resolve()} \\
     --rerun-triggers mtime
