@@ -20,8 +20,6 @@ def make_singleton_batches_():
 
 ids = make_singleton_batches_().id.tolist()
 
-alphafold3_predictions_mem_mb = config['alphafold3']['predictions']['mem_mb']
-
 for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
     #print(batch_id)
     #print(df_batch)
