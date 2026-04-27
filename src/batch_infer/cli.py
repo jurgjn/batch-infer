@@ -28,7 +28,7 @@ def start(target, results_path, snakemake_args):
 
     jobname = f'batch_infer:{target}'
     output_path = results_path / f'.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt'
-
+    lockfile_path = results_path / '.snakemake-eu/batch-infer.lock'
     activate_path = Path(__file__).parent.parent.parent.parent.parent.resolve() / '.venv/bin/activate'
     snakefile_path = Path(__file__).parent.parent.parent.resolve() / f'workflow/targets/{target}.smk'
     configfile_path1 = Path(__file__).parent.parent.parent.resolve() / 'workflow/config/defaults.yaml'
@@ -53,16 +53,33 @@ def start(target, results_path, snakemake_args):
 #SBATCH --output={output_path.resolve()}
 module load stack/2025-06 python/3.13.0 eth_proxy
 source {activate_path.resolve()}
-export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOBID:
+export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOB_ID:
+echo $SLURM_JOB_ID > {lockfile_path.resolve()}
 snakemake {target} {' '.join(snakemake_args)} \\
     --snakefile {snakefile_path.resolve()} \\
     --configfile {configfile_path1.resolve()} {configfile_path2.resolve() if configfile_path2.is_file() else ''} \\
     --profile={profile_path.resolve()} \\
     --directory {results_path.resolve()} \\
     --rerun-triggers mtime
+rm {lockfile_path.resolve()}
 myjobs -j $SLURM_JOB_ID
 """)
 
-@cli.command(short_help='Status')
-def status():
-    subprocess.run('squeue --format="%.18i %.12P %.128j %.8T %.16M %.16l %40R" | column -t --table-right 1,5,6', shell=True) 
+def get_lockfile_jobid(results_path):
+    lockfile_path = results_path / '.snakemake-eu/batch-infer.lock'
+    with open(lockfile_path) as fh:
+        jobid = fh.read().strip()
+    return jobid
+
+@cli.command(short_help='Show batch-infer jobs running in results_path')
+@click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path))
+def status(results_path):
+    jobid_ = get_lockfile_jobid(results_path)
+    subprocess.run(f'squeue --format="%.18i %.20P %.128j %.8T %.16M %.16l %40R" | column -t --table-right 1,5,6 | awk "NR==1 || /{jobid_}/"', shell=True) 
+
+@cli.command(short_help='Print scancel command to stop batch-infer jobs running in results_path')
+@click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path))
+def stop(results_path):
+    jobid_ = get_lockfile_jobid(results_path)
+    str_ = subprocess.run("squeue --format='%.18i %.128j' --noheader | " + f'awk "/{jobid_}/"' + " | awk '{ print $1 }' | tr '\n' ' '", shell=True, capture_output=True).stdout.decode('ascii')
+    print('scancel %s' % (str_,)) 
