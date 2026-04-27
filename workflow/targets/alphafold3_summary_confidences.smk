@@ -1,26 +1,23 @@
 
-import functools, pandas as pd, af3io, pooled_ppi
+import af3io, functools, pandas as pd
+from pooled_ppi.core import *
 from pathlib import Path
 from pprint import pprint
 
 rule alphafold3_summary_confidences_run:
     output:
-        'summary_confidences.parquetf'
-    threads: 1
+        'summary_confidences.parquet'
+    threads: 96
     resources:
-        # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#dynamic-resources
-        runtime = lambda wc, attempt: ['1h', '1d', '3d', '7d'][attempt - 1],
-        mem_mb = lambda wc, attempt: [12288, 32768, 65536, 131072][attempt - 1]
+        runtime = '4h',
+        mem_mb = 98304,
     run:
-        summary_confidences = pd.concat(parallel_map(af3io.predictions.read_summary_confidences, pp.predictions['path']), axis=0).reset_index(drop=True)
+        prediction_paths = list(Path('./').resolve().glob(f'**/alphafold3_predictions/*.zip'))
+        printlen(prediction_paths, 'predictions found')
+        summary_confidences = pd.concat(parallel_map(af3io.predictions.read_summary_confidences, prediction_paths), axis=0).reset_index(drop=True)
         summary_confidences.astype({'predictions_path': str}).to_parquet('summary_confidences.parquet', compression='zstd')
 
-names, = glob_wildcards('alphafold3_predictions/{name}.zip')
-
-localrules: alphafold3_summary_ipsae
-
-
-pprint(pooled_ppi.predictions.glob_alphafold3_predictions(Path('./')))
+localrules: alphafold3_summary_confidences
 
 rule alphafold3_summary_confidences:
     input:
