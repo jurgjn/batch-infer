@@ -18,6 +18,8 @@ git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
 # Switch to develop branch for using pre-computed MSAs
 git checkout --recurse-submodules develop
+# 
+uv tool install -e .
 # Create the batch-infer venv by dry-running tests
 ./batch-infer alphafold3_test results/alphafold3_test --dry-run | sbatch
 ```
