@@ -13,15 +13,11 @@ We can use this to group inputs by size, and run one structure prediction job pe
 ## Quick start
 Clone the repository & install dependancies:
 ```
+module load stack/2025-06 python
 cd /cluster/scratch/$USER
-git clone --recurse-submodules https://github.com/jurgjn/batch-infer.git
+git clone --branch develop --recurse-submodules https://github.com/jurgjn/batch-infer.git
 cd batch-infer
-# Switch to develop branch for using pre-computed MSAs
-git checkout --recurse-submodules develop
-# 
 uv tool install -e .
-# Create the batch-infer venv by dry-running tests
-./batch-infer alphafold3_test results/alphafold3_test --dry-run | sbatch
 ```
 
 Copy your AlphaFold 3 model parameters to `~/.alphafold3_model_dir/af3.bin.zst`. The model parameters have to be [obtained from DeepMind on a per-user basis](https://github.com/google-deepmind/alphafold3?tab=readme-ov-file#obtaining-model-parameters).
