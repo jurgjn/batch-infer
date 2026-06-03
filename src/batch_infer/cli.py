@@ -18,7 +18,7 @@ def cli():
 
 #https://click.palletsprojects.com/en/stable/advanced/#forwarding-unknown-options
 @cli.command(short_help='Check for files & output sbatch script to start a run', context_settings=dict(ignore_unknown_options=True,))
-@click.argument('target', type=str)
+@click.argument('target', type=str, default='alphafold3_datafill_predictions')
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
 @click.argument('snakemake_args', nargs=-1, type=click.UNPROCESSED)
 def start(target, results_path, snakemake_args):
@@ -28,17 +28,16 @@ def start(target, results_path, snakemake_args):
 
     jobname = f'batch_infer:{target}'
     output_path = results_path / f'.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt'
-    lockfile_path = results_path / '.snakemake-eu/batch-infer.lock'
-    activate_path = Path(__file__).parent.parent.parent.resolve() / '.venv/bin/activate'
-    snakefile_path = Path(__file__).parent.parent.parent.resolve() / f'workflow/targets/{target}.smk'
-    configfile_path1 = Path(__file__).parent.parent.parent.resolve() / 'workflow/config/defaults.yaml'
-    configfile_path2 = results_path / f'config.yaml'
-    for path_ in [activate_path, snakefile_path, configfile_path1, configfile_path2]:
+    activate_path = batch_infer_path('.venv/bin/activate')
+    snakefile_path = batch_infer_path(f'workflow/targets/{target}.smk')
+    configfile1_path = batch_infer_path('workflow/config/defaults.yaml')
+    configfile2_path = results_path / f'config.yaml'
+    for path_ in [activate_path, snakefile_path, configfile1_path, configfile2_path]:
         if not path_.is_file():
             eprint(f'Not a file: {path_}')
             sys.exit(1)
 
-    profile_path = Path(__file__).parent.parent.parent.resolve() / 'workflow/profiles/default'
+    profile_path = batch_infer_path('workflow/profiles/default')
     for path_ in [results_path, profile_path,]:
         if not path_.is_dir():
             eprint(f'Not a directory: {path_}')
@@ -55,14 +54,14 @@ def start(target, results_path, snakemake_args):
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4G
 #SBATCH --tmp=16G
-#SBATCH --time=0-03:00:00
+#SBATCH --time=7-00:00:00
 #SBATCH --output={output_path.resolve()}
 module load stack/2025-06 python/3.13.0 eth_proxy
 source {activate_path.resolve()}
 export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOB_ID:
 snakemake {target} {' '.join(snakemake_args)} \\
     --snakefile {snakefile_path.resolve()} \\
-    --configfile {configfile_path1.resolve()} {configfile_path2.resolve() if configfile_path2.is_file() else ''} \\
+    --configfile {configfile1_path.resolve()} {configfile2_path.resolve() if configfile2_path.is_file() else ''} \\
     --profile={profile_path.resolve()} \\
     --directory {results_path.resolve()} \\
     --rerun-triggers mtime
@@ -91,29 +90,31 @@ def get_lockfile_jobid(results_path):
         jobid = fh.read().strip()
     return jobid
 
-@cli.command(short_help='Show batch-infer jobs running in results_path')
+@cli.command(short_help='Show batch-infer jobs/status')
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
 def status(results_path):
     jobid_ = get_lockfile_jobid(results_path)
     subprocess.run(f'squeue --format="%.18i %.20P %.128j %.8T %.16M %.16l %40R" | column -t --table-right 1,5,6 | awk "NR==1 || /{jobid_}/"', shell=True) 
 
-@cli.command(short_help='Print scancel command to stop batch-infer jobs running in results_path')
+@cli.command(short_help='Stop batch-infer jobs')
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
 def stop(results_path):
     jobid_ = get_lockfile_jobid(results_path)
     str_ = subprocess.run("squeue --format='%.18i %.128j' --noheader | " + f'awk "/{jobid_}/"' + " | awk '{ print $1 }' | tr '\n' ' '", shell=True, capture_output=True).stdout.decode('ascii')
-    print('scancel %s' % (str_,)) 
+    args_ = ('scancel %s' % (str_,)).split()
+    subprocess.run(args_, check=True)
 
-@cli.command(short_help='Snakemake unlock')
+@cli.command(short_help='Unlock/remove temporary files')
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
 def unlock(results_path):
     # Run snakemake with a minimal setup to locally unlock the directory
-    run_unlock = subprocess.run(['uv', 'tool', 'run', '--from', 'batch-infer', 'python', '-m', 'snakemake', 
-                                 '--snakefile', batch_infer_path('workflow/targets/alphafold3_db_dir.smk'),
-                                 '--configfile', batch_infer_path('workflow/config/defaults.yaml'),
-                                 '--directory', results_path,
-                                 '--unlock'], check=True)
+    subprocess.run(['uv', 'tool', 'run', '--from', 'batch-infer', 'python', '-m', 'snakemake', 
+                    '--snakefile', batch_infer_path('workflow/targets/alphafold3_db_dir.smk'),
+                    '--configfile', batch_infer_path('workflow/config/defaults.yaml'),
+                    '--directory', results_path,
+                    '--unlock'], check=True)
     
+    # Remove batch-infer script, lockfile
     for file in [ results_path / '.batch-infer.lock', results_path / '.batch-infer.sbatch' ]:
         if file.is_file():
             click.echo(f'Removing {file.relative_to(results_path)}')
