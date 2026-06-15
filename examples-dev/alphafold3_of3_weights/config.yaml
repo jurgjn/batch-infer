@@ -1,0 +1,10 @@
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_97d66d2.sif
+  data_sources: >-
+    --data_dir=/cluster/project/beltrao/shared/25.05_alphafold3_msas_human
+  model_dir: /cluster/project/beltrao/shared/26.06_of3_weights_converted
+  predictions:
+    singularity_args: ''
+    run_alphafold_args: >-
+      --of3_weights
+      --num_recycles=3
