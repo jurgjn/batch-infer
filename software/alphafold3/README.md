@@ -24,8 +24,12 @@ from Jan 23 2025
 - [v3.0.0](https://github.com/google-deepmind/alphafold3/tree/v3.0.0)
 from Nov 11 2024
 
-#### Custom builds from [jurgjn/alphafold3](https://github.com/jurgjn/alphafold3/)
-- [v3.0.1-daint1](https://github.com/jurgjn/alphafold3/commit/7afc573abb895e96a1294796d50fe297c572fce2) for arm64/gh200 (Grace Hopper) by modifying a single line in pyproject.toml
+#### Custom builds
+- [97d66d2](https://github.com/sokrypton/alphafold3/tree/97d66d2873d10080f476c8014e743ee70890fb5a)
+from [sokrypton/alphafold3](https://github.com/sokrypton/alphafold3)
+to [use OpenFold3 weights](https://x.com/sokrypton/status/2066223464210370862)
+- [v3.0.1-daint1](https://github.com/jurgjn/alphafold3/commit/7afc573abb895e96a1294796d50fe297c572fce2) for arm64/gh200 (Grace Hopper)
+by modifying a single line in pyproject.toml from [jurgjn/alphafold3](https://github.com/jurgjn/alphafold3/)
 (and removing all hashes from dev-requirements.txt)
 
 #### See also
