@@ -1,5 +1,6 @@
-
 alphafold3:
   data_sources: >-
     --data_dir=/cluster/project/beltrao/shared/25.05_alphafold3_msas_human
-    --data_dir=/cluster/project/beltrao/shared/25.06_alphafold3_msas_yeast
+  predictions:
+    run_alphafold_args: >-
+      --num_recycles=3
