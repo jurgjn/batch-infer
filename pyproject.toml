@@ -3,10 +3,11 @@ name = "batch-infer"
 version = "26.0-dev"
 requires-python = ">=3.13"
 dependencies = [
-    "af3io",
+    "af3io @ git+https://github.com/jurgjn/af3io.git",
     "ipykernel",
     "ipywidgets",
-    "pooled-ppi",
+    "pooled-ppi @ git+https://github.com/jurgjn/pooled-ppi.git",
+    "pyarrow>=24.0.0",
     "pytest",
     "scikit-learn",
     "snakemake==9.19.0",
