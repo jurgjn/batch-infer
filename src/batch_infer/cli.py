@@ -47,24 +47,24 @@ def start(target, results_path, snakemake_args):
     with open(sbatch_path, 'w') as f:
         f.write(f"""#!/usr/bin/env bash
 #SBATCH --job-name={jobname}
-#SBATCH --chdir={results_path}
+#SBATCH --chdir={results_path.resolve()}
 #SBATCH --output=.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4G
 #SBATCH --tmp=16G
 #SBATCH --time=7-00:00:00
 module load stack/2025-06 python/3.13.0 eth_proxy
-source {activate_path}
+source {activate_path.resolve()}
 export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOB_ID:
 snakemake {target} {' '.join(snakemake_args)} \\
-    --snakefile {snakefile_path} \\
-    --configfile {configfile1_path} {configfile2_path if configfile2_path.is_file() else ''} \\
-    --profile={profile_path} \\
-    --directory {results_path} \\
+    --snakefile {snakefile_path.resolve()} \\
+    --configfile {configfile1_path.resolve()} {configfile2_path.resolve() if configfile2_path.is_file() else ''} \\
+    --profile={profile_path.resolve()} \\
+    --directory {results_path.resolve()} \\
     --rerun-triggers mtime
 myjobs -j $SLURM_JOB_ID
-rm {jobid_path}
-rm {sbatch_path}
+rm {jobid_path.resolve()}
+rm {sbatch_path.resolve()}
 """)
 
     run_sbatch = subprocess.run(['sbatch', sbatch_path], capture_output=True, text=True)
