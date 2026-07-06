@@ -16,18 +16,16 @@ def batch_infer_path(subpath):
 def cli():
     pass
 
-#https://click.palletsprojects.com/en/stable/advanced/#forwarding-unknown-options
 @cli.command(short_help='Check for files & output sbatch script to start a run', context_settings=dict(ignore_unknown_options=True,))
 @click.argument('target', type=str, default='alphafold3_datafill_predictions')
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
-@click.argument('snakemake_args', nargs=-1, type=click.UNPROCESSED)
+@click.argument('snakemake_args', nargs=-1, type=click.UNPROCESSED) #https://click.palletsprojects.com/en/stable/advanced/#forwarding-unknown-options
 def start(target, results_path, snakemake_args):
     """
     batch-infer start alphafold3_datafill_missing
     """
 
     jobname = f'batch_infer:{target}'
-    output_path = results_path / f'.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt'
     activate_path = batch_infer_path('.venv/bin/activate')
     snakefile_path = batch_infer_path(f'workflow/targets/{target}.smk')
     configfile1_path = batch_infer_path('workflow/config/defaults.yaml')
@@ -43,31 +41,30 @@ def start(target, results_path, snakemake_args):
             eprint(f'Not a directory: {path_}')
             sys.exit(1)
 
-    # .batch-infer.jobid
-    # .batch-infer.sbatch
-    jobid_path = results_path / '.batch-infer.lock'
     sbatch_path = results_path / '.batch-infer.sbatch'
+    jobid_path = results_path / '.batch-infer.lock'
 
     with open(sbatch_path, 'w') as f:
         f.write(f"""#!/usr/bin/env bash
 #SBATCH --job-name={jobname}
+#SBATCH --chdir={results_path}
+#SBATCH --output=.snakemake-eu/logs/{datetime.today().strftime("%y-%m-%d")}/{jobname}-%j.txt
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4G
 #SBATCH --tmp=16G
 #SBATCH --time=7-00:00:00
-#SBATCH --output={output_path.resolve()}
 module load stack/2025-06 python/3.13.0 eth_proxy
-source {activate_path.resolve()}
+source {activate_path}
 export SMK_JOB_NAME_PREFIX=batch-infer:$SLURM_JOB_ID:
 snakemake {target} {' '.join(snakemake_args)} \\
-    --snakefile {snakefile_path.resolve()} \\
-    --configfile {configfile1_path.resolve()} {configfile2_path.resolve() if configfile2_path.is_file() else ''} \\
-    --profile={profile_path.resolve()} \\
-    --directory {results_path.resolve()} \\
+    --snakefile {snakefile_path} \\
+    --configfile {configfile1_path} {configfile2_path if configfile2_path.is_file() else ''} \\
+    --profile={profile_path} \\
+    --directory {results_path} \\
     --rerun-triggers mtime
 myjobs -j $SLURM_JOB_ID
-rm {jobid_path.resolve()}
-rm {sbatch_path.resolve()}
+rm {jobid_path}
+rm {sbatch_path}
 """)
 
     run_sbatch = subprocess.run(['sbatch', sbatch_path], capture_output=True, text=True)
@@ -108,7 +105,7 @@ def stop(results_path):
 @click.argument('results_path', type=click.Path(exists=True, file_okay=False, dir_okay=True, writable=True, path_type=Path), default=Path.cwd())
 def unlock(results_path):
     # Run snakemake with a minimal setup to locally unlock the directory
-    subprocess.run(['uv', 'tool', 'run', '--from', 'batch-infer', 'python', '-m', 'snakemake', 
+    subprocess.run([sys.executable, '-m', 'snakemake', 
                     '--snakefile', batch_infer_path('workflow/targets/alphafold3_db_dir.smk'),
                     '--configfile', batch_infer_path('workflow/config/defaults.yaml'),
                     '--directory', results_path,
