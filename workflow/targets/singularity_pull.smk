@@ -6,7 +6,7 @@ rule singularity_pull:
         container_dir = config["singularity"]["container_dir"],
         pull = config["singularity"]["pull"],
     resources:
-        runtime = '1h',
+        runtime = '4h',
         mem_mb = 24576,
         disk_mb = 24576,
     envmodules: *config['envmodules']
