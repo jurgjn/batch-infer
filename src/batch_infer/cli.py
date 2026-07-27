@@ -26,7 +26,8 @@ def start(target, results_path, snakemake_args):
     """
 
     jobname = f'batch_infer:{target}'
-    activate_path = batch_infer_path('.venv/bin/activate')
+    uv_tool_dir = Path(subprocess.run(['uv', 'tool', 'dir'], capture_output=True, text=True).stdout.rstrip())
+    activate_path = uv_tool_dir / 'batch-infer/bin/activate'
     snakefile_path = batch_infer_path(f'workflow/targets/{target}.smk')
     configfile1_path = batch_infer_path('workflow/config/defaults.yaml')
     configfile2_path = results_path / f'config.yaml'
