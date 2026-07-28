@@ -28,6 +28,15 @@ def _submit_target(target, results_path, snakemake_args=()):
     Write an sbatch script for `target` and submit it via sbatch.
     Returns the submitted Slurm job id (int). Raises BatchInferError on any failure.
     """
+    # REMOVED vs. the original `start()`: these checks used to call `eprint(...)` and then
+    # `sys.exit(1)` directly, inline, since `start()` was only ever invoked once as a whole
+    # Click command. That worked fine for a single manual `batch-infer start <target>` call,
+    # but this validation logic is now shared with the new `datafill` pipeline, which submits
+    # three targets in a loop and needs to know *which* stage failed and *why* before deciding
+    # whether/how to abort the remaining stages. `sys.exit(1)` can't be caught and annotated with
+    # that stage context (it tears down the whole process immediately), so these now raise
+    # BatchInferError instead, letting each caller (`start` or `datafill`) catch it, print a
+    # message with the relevant stage/job context, and exit on its own terms.
     jobname = f'batch_infer:{target}'
     activate_path = get_activate()
     snakefile_path = batch_infer_path(f'workflow/targets/{target}.smk')
@@ -69,6 +78,22 @@ rm {sbatch_path.resolve()}
 """)
 
     run_sbatch = subprocess.run(['sbatch', sbatch_path], capture_output=True, text=True)
+    # REMOVED vs. the original: this used to be
+    #     try:
+    #         re_ = re.search(r"Submitted batch job (\d+)$", run_sbatch.stdout)
+    #         jobid = int(re_.group(1))
+    #     except:
+    #         print('Cannot extract jobid from', run_sbatch.stdout)
+    # If `re.search` ever failed to match (e.g. sbatch printed an error instead of "Submitted
+    # batch job <id>"), `re_` would be None, `re_.group(1)` would raise AttributeError, the bare
+    # `except` would swallow it and just print a message -- but `jobid` would then be left
+    # completely undefined. Execution would fall through to `open(jobid_path, 'w').write(str(jobid))`
+    # a few lines below and crash with an unrelated `NameError: name 'jobid' is not defined`,
+    # instead of surfacing the real problem (sbatch submission failure). That silent-then-confusing
+    # failure mode is exactly what the new `datafill` wrapper needs to avoid, since it must detect
+    # a failed submission and abort the pipeline with a clear message rather than crash obscurely.
+    # Replaced with an explicit None-check that raises BatchInferError with the actual sbatch
+    # stdout/stderr attached, so the failure is diagnosable and catchable by both `start` and `datafill`.
     re_ = re.search(r"Submitted batch job (\d+)$", run_sbatch.stdout)
     if re_ is None:
         raise BatchInferError(f'Cannot extract jobid from sbatch output: stdout={run_sbatch.stdout!r} stderr={run_sbatch.stderr!r}')
@@ -141,6 +166,15 @@ def start(target, results_path, snakemake_args):
     """
     batch-infer start alphafold3_datafill_missing
     """
+    # REMOVED vs. the original: this function used to contain the entire submission body
+    # (building `jobname`/`activate_path`/etc., validating paths, writing the sbatch script,
+    # calling `sbatch`, and persisting the job id) inline. All of that was extracted verbatim
+    # into `_submit_target()` above so the new `datafill` command can call the exact same
+    # submission logic for each of its three stages instead of duplicating it. Nothing about
+    # what gets submitted or how changed -- only where the code lives, plus the error-handling
+    # style noted above (`raise BatchInferError` instead of inline `eprint`+`sys.exit(1)`).
+    # `start` itself still exits with status 1 on failure, same as before, it just does so by
+    # catching the exception here rather than the exit happening deeper in the call stack.
     try:
         _submit_target(target, results_path, snakemake_args)
     except BatchInferError as e:
