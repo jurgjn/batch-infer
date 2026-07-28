@@ -1,11 +1,26 @@
 
-import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string, subprocess, zipfile
+import collections, contextlib, copy, filecmp, functools, glob, gzip, importlib, importlib.resources, inspect, io, itertools, json, multiprocessing, os, os.path, re, string, subprocess, sys, time, zipfile, warnings
+from datetime import datetime
 from pathlib import Path
 from pprint import pprint
 
 import numpy as np, pandas as pd
 
-import humanfriendly
+import snakemake, humanfriendly
+
+import tqdm.contrib.concurrent
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
+def batch_infer_path(subpath):
+    return Path(__file__).parent.parent.parent.resolve() / subpath
+
+def get_activate():
+    # Assumes batch-infer has been installed via uv tool; maybe add failsafe to check for a .venv under the batch-infer directory?
+    uv_tool_dir = subprocess.run(['uv', 'tool', 'dir', '--color', 'never'], capture_output=True, text=True).stdout.rstrip()
+    activate_path = os.path.join(uv_tool_dir, 'batch-infer/bin/activate')
+    return Path(activate_path)
 
 def uf(x):
     return '{:,}'.format(x)
@@ -85,7 +100,8 @@ def root_path(path):
     #https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#accessing-auxiliary-source-files
     > This can be achieved by accessing their path via the workflow.source_path, which (a) computes the correct path relative to the current Snakefile such that the file can be accessed from any working directory
     """
-    return os.path.join(os.path.abspath(f'{workflow.basedir}/../..'), path)
+    #return os.path.join(os.path.abspath(f'{workflow.basedir}/../..'), path)
+    return batch_infer_path(path).resolve()
 
 def alphafold3_json_path(id):
     return f'alphafold3_jsons/{id}.json'
@@ -237,8 +253,17 @@ def read_fasta(path, stop=None):
     columns = ['id', 'seq']
     return pd.DataFrame.from_records([ (r.id, str(r.seq)) for r in itertools.islice(Bio.SeqIO.parse(path, 'fasta'), stop) ], columns=columns)
 
-def get_activate():
-    # Assumes batch-infer has been installed via uv tool; maybe add failsafe to check for a .venv under the batch-infer directory?
-    uv_tool_dir = Path(subprocess.run(['uv', 'tool', 'dir'], capture_output=True, text=True).stdout.rstrip())
-    activate_path = uv_tool_dir / 'batch-infer/bin/activate'
-    return activate_path.resolve()
+def parallel_map(fn, *iterables):
+    """
+    Example that returns multiple columns:
+        interface_residues[['ifresid1', 'ifresid2']] = pd.DataFrame(mf.parallel_map(mf.structure.get_ifresid, interface_residues['path']))
+
+    See also:
+        https://tqdm.github.io/docs/contrib.concurrent/#process_map
+    """
+    return tqdm.contrib.concurrent.process_map(fn, *iterables, max_workers=get_max_workers(), chunksize=10)
+
+def parallel_from_records(fn, *iterables, columns):
+    parallel_map_ = parallel_map(fn, *iterables)
+    # Maybe try & infer columns from iterables (fields argument?)
+    return pd.DataFrame.from_records(flatten(parallel_map_), columns=columns)

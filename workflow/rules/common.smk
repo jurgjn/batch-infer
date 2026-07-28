@@ -1,5 +1,5 @@
 
-include: 'common.py'
+from batch_infer.common import *
 
 wildcard_constraints:
     rule = r'[^\W0-9](\w|_)*', # https://stackoverflow.com/questions/49100678/regex-matching-unicode-variable-names

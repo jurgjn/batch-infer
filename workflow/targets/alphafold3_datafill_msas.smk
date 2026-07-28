@@ -2,8 +2,6 @@
 
 include: '../rules/common.smk'
 
-ids, = glob_wildcards('alphafold3_missing/{id}.json')
-
 rule alphafold3_datafill_msas_run:
     """
     Run AF3 data pipeline for one input .json
@@ -57,6 +55,8 @@ rule alphafold3_datafill_msas_run:
         cp $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json.gz $SMKDIR/alphafold3_msas/{wildcards.id}_data.json.gz
     """
 
+ids, = glob_wildcards('alphafold3_missing/{id}.json')
+
 localrules: alphafold3_datafill_msas
 
 rule alphafold3_datafill_msas:
@@ -65,7 +65,7 @@ rule alphafold3_datafill_msas:
     output:
         'alphafold3_msas/.af3io_data_index.json',
     params:
-        activate = root_path('.venv/bin/activate'),
+        activate = get_activate(),
     shell: """
         source {params.activate}
         mkdir -p alphafold3_msas/

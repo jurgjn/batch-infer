@@ -39,16 +39,23 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             # singularity
             singularity_args = config['alphafold3']['predictions']['singularity_args'],
             container = config['alphafold3']['container'],
-            # bind paths
-            bind_input = '--bind alphafold3_msas:/root/af_input',
-            bind_output = '--bind alphafold3_predictions:/root/af_output',
-            bind_models = f"--bind {config['alphafold3']['model_dir']}:/root/models",
-            bind_databases = f"--bind {config['alphafold3']['db_dir']}:/root/public_databases",
-            bind_scripts = f"--bind {root_path('workflow/scripts')}:/app/scripts",
+            # container bind paths
+            singularity_bind = (
+                '--bind alphafold3_msas:/root/af_input '
+                '--bind alphafold3_predictions:/root/af_output '
+                f"--bind {config['alphafold3']['model_dir']}:/root/models "
+                f"--bind {config['alphafold3']['db_dir']}:/root/public_databases "
+                f"--bind {root_path('workflow/scripts')}:/app/scripts "
+            ),
             # run_alphafold.py
             run_alphafold_wrapper = config['alphafold3']['predictions']['run_alphafold_wrapper'],
             run_alphafold_args = f"--norun_data_pipeline {config['alphafold3']['predictions']['run_alphafold_args']}",
-            run_alphafold_dirs = '--input_dir=/root/af_input --output_dir=/root/af_output --model_dir=/root/models --db_dir=/root/public_databases',
+            run_alphafold_dirs = (
+                '--input_dir=/root/af_input '
+                '--output_dir=/root/af_output '
+                '--model_dir=/root/models '
+                '--db_dir=/root/public_databases '
+            ),
         retries: config['alphafold3']['predictions']['retries']
         resources:
             runtime = config['alphafold3']['predictions']['runtime'],
@@ -79,11 +86,7 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             ls -l $TMPDIR
             singularity exec --nv --writable-tmpfs \
                 {params.singularity_args} \
-                {params.bind_input} \
-                {params.bind_output} \
-                {params.bind_models} \
-                {params.bind_databases} \
-                {params.bind_scripts} \
+                {params.singularity_bind} \
                 {params.container} \
                 sh -c '/app/scripts/{params.run_alphafold_wrapper} {params.run_alphafold_args} {params.run_alphafold_dirs}'
             cd -

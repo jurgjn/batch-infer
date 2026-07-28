@@ -3,10 +3,10 @@ name = "batch-infer"
 version = "26.0-dev"
 requires-python = ">=3.13"
 dependencies = [
-    "af3io @ git+https://github.com/jurgjn/af3io.git",
+    "af3io",
     "ipykernel",
     "ipywidgets",
-    "pooled-ppi @ git+https://github.com/jurgjn/pooled-ppi.git",
+    "pooled-ppi",
     "pyarrow>=24.0.0",
     "pytest",
     "scikit-learn",
@@ -16,6 +16,10 @@ dependencies = [
 
 [project.scripts]
 batch-infer = "batch_infer.cli:cli"
+
+[tool.uv.sources]
+af3io = { git = "https://github.com/jurgjn/af3io.git", rev = "7861302" }
+pooled-ppi = { git = "https://github.com/jurgjn/pooled-ppi.git" }
 
 [build-system]
 requires = ["uv_build>=0.9.22,<0.11.0"]

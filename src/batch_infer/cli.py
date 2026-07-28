@@ -6,11 +6,7 @@ from pprint import pprint
 
 import click
 
-def eprint(*args, **kwargs):
-    print(*args, file=sys.stderr, **kwargs)
-
-def batch_infer_path(subpath):
-    return Path(__file__).parent.parent.parent.resolve() / subpath
+from .common import *
 
 @click.group()
 def cli():
@@ -26,12 +22,11 @@ def start(target, results_path, snakemake_args):
     """
 
     jobname = f'batch_infer:{target}'
-    uv_tool_dir = Path(subprocess.run(['uv', 'tool', 'dir'], capture_output=True, text=True).stdout.rstrip())
-    activate_path = uv_tool_dir / 'batch-infer/bin/activate'
+    activate_path = get_activate()
     snakefile_path = batch_infer_path(f'workflow/targets/{target}.smk')
     configfile1_path = batch_infer_path('workflow/config/defaults.yaml')
     configfile2_path = results_path / f'config.yaml'
-    for path_ in [activate_path, snakefile_path, configfile1_path, configfile2_path]:
+    for path_ in [activate_path, snakefile_path, configfile1_path]:
         if not path_.is_file():
             eprint(f'Not a file: {path_}')
             sys.exit(1)
