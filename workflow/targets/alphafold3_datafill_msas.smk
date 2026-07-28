@@ -1,15 +1,16 @@
 
-
 include: '../rules/common.smk'
+
+include: 'alphafold3_datafill_missing.smk'
 
 rule alphafold3_datafill_msas_run:
     """
     Run AF3 data pipeline for one input .json
     """
     input:
-        json = 'alphafold3_missing/{id}.json',
+        json = 'alphafold3_missing/{missing_id}.json',
     output:
-        json = 'alphafold3_msas/{id}_data.json.gz',
+        json = 'alphafold3_msas/{missing_id}_data.json.gz',
     params:
         activate = get_activate(),
         # bind paths
@@ -20,7 +21,7 @@ rule alphafold3_datafill_msas_run:
         #databases_fallback = f'--bind {config["alphafold3_databases_fallback"]}:/root/public_databases_fallback',
         docker = root_path(config["alphafold3"]["container"]),
         # run_alphafold.py
-        json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}.json',
+        json_path = lambda wc: f'--json_path=/root/af_input/{wc.missing_id}.json',
         output_dir = '--output_dir=/root/af_output',
         model_dir ='--model_dir=/root/models',
         db_dir = '--db_dir=/root/public_databases',
@@ -51,17 +52,20 @@ rule alphafold3_datafill_msas_run:
                 {params.max_template_date} \
                 {params.xtra_args}'
         cd -
-        gzip $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json
-        cp $TMPDIR/alphafold3_msas/{wildcards.id}/{wildcards.id}_data.json.gz $SMKDIR/alphafold3_msas/{wildcards.id}_data.json.gz
+        gzip $TMPDIR/alphafold3_msas/{wildcards.missing_id}/{wildcards.missing_id}_data.json
+        cp $TMPDIR/alphafold3_msas/{wildcards.missing_id}/{wildcards.missing_id}_data.json.gz $SMKDIR/alphafold3_msas/{wildcards.missing_id}_data.json.gz
     """
-
-ids, = glob_wildcards('alphafold3_missing/{id}.json')
 
 localrules: alphafold3_datafill_msas
 
+def alphafold3_datafill_msas_input(wildcards):
+    missing_dir = checkpoints.alphafold3_datafill_missing.get().output[0]
+    missing_ids, = glob_wildcards('alphafold3_missing/{missing_id}.json')
+    return expand('alphafold3_msas/{missing_id}_data.json.gz', missing_id=missing_ids)
+
 rule alphafold3_datafill_msas:
     input:
-        expand('alphafold3_msas/{id}_data.json.gz', id=ids),
+        alphafold3_datafill_msas_input
     output:
         'alphafold3_msas/.af3io_data_index.json',
     params:

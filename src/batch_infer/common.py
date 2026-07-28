@@ -5,10 +5,9 @@ from pathlib import Path
 from pprint import pprint
 
 import numpy as np, pandas as pd
-
 import snakemake, humanfriendly
-
 import tqdm.contrib.concurrent
+import af3io
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
@@ -252,6 +251,17 @@ def read_fasta(path, stop=None):
     import Bio, Bio.SeqIO
     columns = ['id', 'seq']
     return pd.DataFrame.from_records([ (r.id, str(r.seq)) for r in itertools.islice(Bio.SeqIO.parse(path, 'fasta'), stop) ], columns=columns)
+
+@functools.cache
+def get_max_workers():
+    try:
+        ntasks = int(os.environ['SLURM_NTASKS']) * int(os.environ['SLURM_CPUS_PER_TASK'])
+        source = 'SLURM_NTASKS * SLURM_CPUS_PER_TASK'
+    except:
+        ntasks = int(subprocess.check_output(['nproc', '--all']))
+        source = 'nproc --all'
+    print(f'Using {ntasks} cores inferred from {source}')
+    return ntasks
 
 def parallel_map(fn, *iterables):
     """

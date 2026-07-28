@@ -1,8 +1,7 @@
-"""
-https://github.com/google-deepmind/alphafold3/issues/341
-"""
 
 include: '../rules/common.smk'
+
+include: 'alphafold3_datafill_msas.smk'
 
 # Mock partitioning to run one pool per job for now - should eventually become a checkpoint
 def make_singleton_batches_():
@@ -29,6 +28,7 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             f'alphafold3_datafill_predictions_batch{batch_id}_{len(df_batch)}'
         input:
             json = expand('alphafold3_jsons/{id}.json', id=df_batch.id.tolist()),
+            msas = 'alphafold3_msas/.af3io_data_index.json', # trigger missing MSAs
         output:
             cifs = expand('alphafold3_predictions/{id}.zip', id=df_batch.id.tolist()),
         params:

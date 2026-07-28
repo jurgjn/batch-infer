@@ -1,7 +1,9 @@
 
 include: '../rules/common.smk'
 
-rule alphafold3_datafill_missing:
+localrules: alphafold3_datafill_missing
+
+checkpoint alphafold3_datafill_missing:
     input:
         input_dir = 'alphafold3_jsons',
     output:
