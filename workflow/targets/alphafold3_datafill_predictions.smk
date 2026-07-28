@@ -32,7 +32,7 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
         output:
             cifs = expand('alphafold3_predictions/{id}.zip', id=df_batch.id.tolist()),
         params:
-            activate = root_path('.venv/bin/activate'),
+            activate = get_activate(),
             # alphafold3 id-s in the batch; datafill
             alphafold3_ids = ' '.join(df_batch.id.tolist()),
             data_sources = config['alphafold3']['data_sources'],

@@ -1,5 +1,6 @@
 
-import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string, zipfile
+import collections, glob, gzip, functools, inspect, itertools, json, multiprocessing, os, os.path, string, subprocess, zipfile
+from pathlib import Path
 from pprint import pprint
 
 import numpy as np, pandas as pd
@@ -235,3 +236,9 @@ def read_fasta(path, stop=None):
     import Bio, Bio.SeqIO
     columns = ['id', 'seq']
     return pd.DataFrame.from_records([ (r.id, str(r.seq)) for r in itertools.islice(Bio.SeqIO.parse(path, 'fasta'), stop) ], columns=columns)
+
+def get_activate():
+    # Assumes batch-infer has been installed via uv tool; maybe add failsafe to check for a .venv under the batch-infer directory?
+    uv_tool_dir = Path(subprocess.run(['uv', 'tool', 'dir'], capture_output=True, text=True).stdout.rstrip())
+    activate_path = uv_tool_dir / 'batch-infer/bin/activate'
+    return activate_path.resolve()

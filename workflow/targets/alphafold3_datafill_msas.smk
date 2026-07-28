@@ -13,7 +13,7 @@ rule alphafold3_datafill_msas_run:
     output:
         json = 'alphafold3_msas/{id}_data.json.gz',
     params:
-        activate = root_path('.venv/bin/activate'),
+        activate = get_activate(),
         # bind paths
         af_input = '--bind alphafold3_missing:/root/af_input',
         af_output = '--bind alphafold3_msas:/root/af_output',

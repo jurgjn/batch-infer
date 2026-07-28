@@ -7,7 +7,7 @@ rule alphafold3_datafill_missing:
     output:
         missing_dir = directory('alphafold3_missing'),
     params:
-        activate = root_path('.venv/bin/activate'),
+        activate = get_activate(),
         data_sources = config['alphafold3']['data_sources'],
     resources:
         runtime = '1d',

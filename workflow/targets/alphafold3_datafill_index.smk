@@ -3,7 +3,7 @@ include: '../rules/common.smk'
 
 rule alphafold3_datafill_index:
     params:
-        activate = root_path('.venv/bin/activate'),
+        activate = get_activate(),
         data_sources = config['alphafold3']['data_sources'],
     resources:
         runtime = '1d',
