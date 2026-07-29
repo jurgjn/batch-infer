@@ -1,3 +1,8 @@
+# Adhoc
+my_overlay/
+openfold3_predictions/
+venv_overlay/
+
 # AlphaFold3 input & output
 alphafold3_jsons/
 alphafold3_missing/
@@ -11,11 +16,29 @@ alphafold3_predictions/
 .snakemake_timestamp
 
 # Large data
+*.cif
+*.csv
+*.fa
+*.fasta
+*.json
 *.pdb
+*.pt
 *.tsv
 
 # Binary files
 *.gz
+*.zip
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
 
 # macOS
 .DS_Store

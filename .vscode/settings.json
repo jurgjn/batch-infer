@@ -1,7 +1,0 @@
-{
-	"explorer.sortOrderLexicographicOptions": "unicode",
-	"python.defaultInterpreterPath": "${workspaceFolder}/.venv",
-	"python.terminal.activateEnvInCurrentTerminal": true,
-	"python.terminal.activateEnvironment": true,
-	"workbench.colorTheme": "Visual Studio Light"
-}
