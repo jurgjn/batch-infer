@@ -18,8 +18,8 @@ dependencies = [
 batch-infer = "batch_infer.cli:cli"
 
 [tool.uv.sources]
-af3io = { git = "https://github.com/jurgjn/af3io.git", rev = "7861302" }
-pooled-ppi = { git = "https://github.com/jurgjn/pooled-ppi.git" }
+af3io = { git = "https://github.com/jurgjn/af3io.git", rev = "ed5c96f" }
+pooled-ppi = { git = "https://github.com/jurgjn/pooled-ppi.git" , branch = "develop" }
 
 [build-system]
 requires = ["uv_build>=0.9.22,<0.11.0"]
