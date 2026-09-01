@@ -1,0 +1,19 @@
+# AlphaFold 3 with the OpenFold3 "openbind" weights, which ship inside the image
+# under /models. Built from https://github.com/juliabuhmann/alphafold3/tree/1fff5c4
+# (AlphaFold 3 v3.0.3 by way of sokrypton/alphafold3 v3.1.4).
+#
+# --of3_weights builds the network with OpenFold3's model configuration instead
+# of AlphaFold 3's. Which OF3 release the weights come from is not in that flag:
+# it is read from the of3_variant marker next to them (/models/of3_variant ->
+# "openbind"), with --of3_openbind={auto,true,false} as an override.
+alphafold3:
+  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_openbind_1fff5c4_weights.sif
+  data_sources: >-
+    --data_dir=/cluster/project/beltrao/shared/25.05_alphafold3_msas_human
+  model_dir:                      # in the image, so nothing to bind from the host
+  model_dir_container: /models
+  predictions:
+    singularity_args: '--bind $TMPDIR/alphafold_cache:/tmp/alphafold_cache'
+    run_alphafold_args: >-
+      --of3_weights
+      --num_recycles=3
