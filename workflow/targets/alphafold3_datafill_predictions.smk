@@ -81,6 +81,9 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             ls -l $TMPDIR/alphafold3_msas
             
             mkdir -p $TMPDIR/alphafold3_predictions
+            # run_alphafold.py caches compiled JAX code in /tmp/alphafold_cache;
+            # bind it to node-local scratch via predictions/singularity_args
+            mkdir -p $TMPDIR/alphafold_cache
             cd $TMPDIR
             echo Contents of $TMPDIR
             ls -l $TMPDIR
