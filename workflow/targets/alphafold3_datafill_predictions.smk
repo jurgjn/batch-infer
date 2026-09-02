@@ -43,7 +43,7 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             singularity_bind = (
                 '--bind alphafold3_msas:/root/af_input '
                 '--bind alphafold3_predictions:/root/af_output '
-                f"--bind {config['alphafold3']['model_dir']}:/root/models "
+                f"{alphafold3_bind_models(config)} "
                 f"--bind {config['alphafold3']['db_dir']}:/root/public_databases "
                 f"--bind {root_path('workflow/scripts')}:/app/scripts "
             ),
@@ -53,7 +53,7 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             run_alphafold_dirs = (
                 '--input_dir=/root/af_input '
                 '--output_dir=/root/af_output '
-                '--model_dir=/root/models '
+                f'{alphafold3_model_dir(config)} '
                 '--db_dir=/root/public_databases '
             ),
         retries: config['alphafold3']['predictions']['retries']
@@ -81,6 +81,9 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
             ls -l $TMPDIR/alphafold3_msas
             
             mkdir -p $TMPDIR/alphafold3_predictions
+            # run_alphafold.py caches compiled JAX code in /tmp/alphafold_cache;
+            # bind it to node-local scratch via predictions/singularity_args
+            mkdir -p $TMPDIR/alphafold_cache
             cd $TMPDIR
             echo Contents of $TMPDIR
             ls -l $TMPDIR
