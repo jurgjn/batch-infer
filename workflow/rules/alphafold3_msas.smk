@@ -11,14 +11,14 @@ rule alphafold3_msas:
         # bind paths
         af_input = '--bind alphafold3_jsons:/root/af_input',
         af_output = '--bind alphafold3_msas:/root/af_output',
-        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        models = alphafold3_bind_models(config),
         databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         #databases_fallback = f'--bind {config["alphafold3_databases_fallback"]}:/root/public_databases_fallback',
         docker = root_path(config["alphafold3"]["container"]),
         # run_alphafold.py
         json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}.json',
         output_dir = '--output_dir=/root/af_output',
-        model_dir ='--model_dir=/root/models',
+        model_dir = alphafold3_model_dir(config),
         db_dir = '--db_dir=/root/public_databases',
         #db_dir_fallback = '--db_dir=/root/public_databases_fallback',
         max_template_date = f'--max_template_date="{config["alphafold3"]["max_template_date"]}"',

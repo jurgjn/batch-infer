@@ -5,10 +5,10 @@ rule alphafold3_run_data_test:
     output:
         done = touch('alphafold3_data_test.done'),
     params:
-        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        models = alphafold3_bind_models(config),
         databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         docker = root_path(config["alphafold3"]["container"]),
-        model_dir ='--model_dir=/root/models',
+        model_dir = alphafold3_model_dir(config),
         db_dir = '--db_dir=/root/public_databases',
     resources:
         runtime = '1h',
@@ -32,10 +32,10 @@ rule alphafold3_run_test:
     output:
         done = touch('alphafold3_test.done'),
     params:
-        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        models = alphafold3_bind_models(config),
         databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         docker = root_path(config["alphafold3"]["container"]),
-        model_dir ='--model_dir=/root/models',
+        model_dir = alphafold3_model_dir(config),
         db_dir = '--db_dir=/root/public_databases',
     resources:
         runtime = config['alphafold3']['test']['runtime'],

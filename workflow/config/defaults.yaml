@@ -12,7 +12,12 @@ alphafold3:
   max_template_date: '2021-09-30'
   # Turn off templates - https://pdb101.rcsb.org/motm/142
   #max_template_date: 1970-01-01
-  # Default location for model weights
+  # Where the weights are on the host; bind-mounted into the container. This is
+  # the only way to supply AlphaFold 3's own parameters, which may not be
+  # redistributed and so are never part of an image.
+  # Openly licensed weights can ship inside one - e.g. the OpenFold3 openbind
+  # parameters under /models: then set model_dir_container: /models and leave
+  # model_dir empty. Exactly one of the two.
   model_dir: ~/.alphafold3_model_dir
   fetch_databases_url: https://raw.githubusercontent.com/google-deepmind/alphafold3/refs/tags/v3.0.1/fetch_databases.sh
   # https://alphafold.ebi.ac.uk/faq

@@ -10,7 +10,7 @@ rule alphafold3_predictions:
         # bind paths
         af_input = '--bind alphafold3_msas:/root/af_input',
         af_output = lambda wildcards: '--bind alphafold3_predictions:/root/af_output',
-        models = f'--bind {config["alphafold3"]["model_dir"]}:/root/models',
+        models = alphafold3_bind_models(config),
         databases = f'--bind {config["alphafold3"]["db_dir"]}:/root/public_databases',
         scripts = f'--bind {root_path("workflow/scripts")}:/app/scripts',
         docker = root_path(config["alphafold3"]["container"]),
@@ -18,7 +18,7 @@ rule alphafold3_predictions:
         #json_path = lambda wc: f'--json_path=/root/af_input/{wc.id}/{wc.id}_data.json',
         input_dir = '--input_dir=/root/af_input',
         output_dir = '--output_dir=/root/af_output',
-        model_dir ='--model_dir=/root/models',
+        model_dir = alphafold3_model_dir(config),
         db_dir = '--db_dir=/root/public_databases',
         # https://github.com/google-deepmind/alphafold3/blob/main/docs/performance.md
         xtra_args = '--norun_data_pipeline',# --flash_attention_implementation=xla',

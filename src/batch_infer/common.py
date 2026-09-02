@@ -102,6 +102,36 @@ def root_path(path):
     #return os.path.join(os.path.abspath(f'{workflow.basedir}/../..'), path)
     return batch_infer_path(path).resolve()
 
+# Mount point for host-side model weights; only used when model_dir is set
+ALPHAFOLD3_MODEL_DIR_CONTAINER = '/root/models'
+
+def alphafold3_model_dir(config):
+    """
+    --model_dir for run_alphafold.py, i.e. where it looks inside the container.
+
+    The weights either live on the host and get bind-mounted (model_dir), or
+    ship inside the image (model_dir_container) - exactly one of the two answers
+    where they are. Only openly licensed weights can take the second route, e.g.
+    the OpenFold3 openbind parameters under /models; AlphaFold 3's own may not be
+    redistributed and always come from the host.
+    """
+    model_dir = config['alphafold3'].get('model_dir')
+    model_dir_container = config['alphafold3'].get('model_dir_container')
+    if bool(model_dir) == bool(model_dir_container):
+        raise ValueError(
+            'alphafold3: set either model_dir (weights on the host, bind-mounted) '
+            'or model_dir_container (weights inside the image), not both/neither; '
+            f'got model_dir={model_dir!r}, model_dir_container={model_dir_container!r}'
+        )
+    return f'--model_dir={model_dir_container or ALPHAFOLD3_MODEL_DIR_CONTAINER}'
+
+def alphafold3_bind_models(config):
+    """
+    --bind for the model weights; empty when they ship inside the container.
+    """
+    model_dir = config['alphafold3'].get('model_dir')
+    return f'--bind {model_dir}:{ALPHAFOLD3_MODEL_DIR_CONTAINER}' if model_dir else ''
+
 def alphafold3_json_path(id):
     return f'alphafold3_jsons/{id}.json'
 
