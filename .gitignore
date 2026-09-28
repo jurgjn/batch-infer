@@ -8,6 +8,7 @@ alphafold3_jsons/
 alphafold3_missing/
 alphafold3_msas/
 alphafold3_predictions/
+.alphafold3_upstream/
 *.done
 
 # Snakemake caches, logs, temporary files
