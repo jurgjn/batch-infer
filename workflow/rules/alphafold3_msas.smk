@@ -39,6 +39,7 @@ rule alphafold3_msas:
         rsync -auq $SMKDIR/ $TMPDIR --include='alphafold3_jsons' --include='{input.json}' --exclude='*'
         mkdir -p $TMPDIR/alphafold3_msas
         cd $TMPDIR
+        af3io fixname {input.json}
         singularity exec {params.af_input} {params.af_output} {params.models} {params.databases} {params.docker} \
             sh -c 'python3 /app/alphafold/run_alphafold.py \
                 {params.json_path} \
