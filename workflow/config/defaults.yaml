@@ -13,7 +13,7 @@ alphafold3:
   # Turn off templates - https://pdb101.rcsb.org/motm/142
   #max_template_date: 1970-01-01
   # Default location for model weights
-  model_dir: ~/.alphafold3_model_dir
+  model_dir: /cluster/project/beltrao/shared/alphafold3/models
   fetch_databases_url: https://raw.githubusercontent.com/google-deepmind/alphafold3/refs/tags/v3.0.1/fetch_databases.sh
   # https://alphafold.ebi.ac.uk/faq
   # > The minimum length is 16 amino acids
@@ -22,17 +22,22 @@ alphafold3:
   predictions_multigpu_tokens_max: 5120
   predictions_multigpu_runtime: 4h
   predictions_multigpu_buffer_time: 0.8
+
   msas:
     threads: 4 # Reduced from 8 (default) to 4, increases CPU utilization from 30-50 to 90%
     retries: 3 # https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html#defining-retries-for-fallible-rules
+
   data_sources: >-
     --data_dir=/cluster/project/beltrao/shared/25.05_alphafold3_msas_human
     --data_dir=/cluster/project/beltrao/shared/25.06_alphafold3_msas_yeast
+
   predictions:
     # Extra arguments to singularity, e.g. set environmental variables to enable unified memory or jax cache
     singularity_args: ''
     # Extra arguments to DeepMind's run_alphafold.py script, e.g. number of recycles
     run_alphafold_args: ''
+    # false = keep <id>_data.json in the zip
+    drop_data: true
     # Wrapper script (under workflow/scripts) to tweak shard spec for low-memory GPUs
     run_alphafold_wrapper: run_alphafold_shard_default.sh
     # Safe resource defaults, A100 with plenty of RAM
@@ -41,6 +46,7 @@ alphafold3:
     mem_mb: 98304
     disk_mb: 16384
     slurm_extra: '--gpus=a100:1'
+
   summary_ipsae:
     pae_cutoff: 10
     dist_cutoff: 10
