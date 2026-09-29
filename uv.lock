@@ -13,11 +13,13 @@ resolution-markers = [
 [[package]]
 name = "af3io"
 version = "26.1.dev0"
-source = { git = "https://github.com/jurgjn/af3io.git?rev=09e229e#09e229e24edf222a253bfe06098100e05c497c61" }
+source = { git = "https://github.com/jurgjn/af3io.git?branch=main#3fa5435e96df1e2af127a7aac9ba34470407fbbe" }
 dependencies = [
+    { name = "biopython" },
     { name = "click" },
     { name = "humanfriendly" },
     { name = "pandas" },
+    { name = "scipy" },
     { name = "zarr" },
 ]
 
@@ -102,6 +104,7 @@ version = "26.0.dev0"
 source = { editable = "." }
 dependencies = [
     { name = "af3io" },
+    { name = "foldcomp" },
     { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "pooled-ppi" },
@@ -114,10 +117,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "af3io", git = "https://github.com/jurgjn/af3io.git?rev=09e229e" },
+    { name = "af3io", git = "https://github.com/jurgjn/af3io.git?branch=main" },
+    { name = "foldcomp", git = "https://github.com/steineggerlab/foldcomp.git?rev=v1.0.0" },
     { name = "ipykernel" },
     { name = "ipywidgets" },
-    { name = "pooled-ppi", git = "https://github.com/jurgjn/pooled-ppi.git" },
+    { name = "pooled-ppi", git = "https://github.com/jurgjn/pooled-ppi.git?branch=develop" },
     { name = "pyarrow", specifier = ">=24.0.0" },
     { name = "pytest" },
     { name = "scikit-learn" },
@@ -318,6 +322,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9b/98/518d8e5081007684232226f475082b30087d0f585e8457db087298259f49/click-8.4.1.tar.gz", hash = "sha256:918b5633eddf6b41c32d4f454bf0de810065c74e3f7dbf8ee5452f8be88d3e96", size = 353007, upload-time = "2026-05-22T04:08:37.769Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/0d/67e5b4109ea4a837e80daa87c2c696711955e40449a97e8926672534def2/click-8.4.1-py3-none-any.whl", hash = "sha256:482be17c6991b8c19c5429a1e995d9b0efdbb63172824c41f99965dc0ade8ec2", size = 116639, upload-time = "2026-05-22T04:08:35.26Z" },
+]
+
+[[package]]
+name = "click-default-group"
+version = "1.2.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1d/ce/edb087fb53de63dad3b36408ca30368f438738098e668b78c87f93cd41df/click_default_group-1.2.4.tar.gz", hash = "sha256:eb3f3c99ec0d456ca6cd2a7f08f7d4e91771bef51b01bdd9580cc6450fe1251e", size = 3505, upload-time = "2023-08-04T07:54:58.425Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2c/1a/aff8bb287a4b1400f69e09a53bd65de96aa5cee5691925b38731c67fc695/click_default_group-1.2.4-py2.py3-none-any.whl", hash = "sha256:9b60486923720e7fc61731bdb32b617039aba820e22e1c88766b1125592eaa5f", size = 4123, upload-time = "2023-08-04T07:54:56.875Z" },
 ]
 
 [[package]]
@@ -568,24 +584,9 @@ wheels = [
 [[package]]
 name = "foldcomp"
 version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/steineggerlab/foldcomp.git?rev=v1.0.0#fde8aacce30597d6df5a6e2faf8f9504a516336f" }
 dependencies = [
     { name = "httpx" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/e5/219e4fa071f6b6179dcd05da70a1bc3a05f7243c60f8a18869bd1227c215/foldcomp-1.0.0.tar.gz", hash = "sha256:1e4abc2aaff3ff841bcd5561ff472783275b72f6a1445e77b303f6676598b196", size = 9684, upload-time = "2026-02-10T11:34:23.432Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1f/20/937d663923c64cf94729b235568da21d4c98f1ec43b5095155335572a5b8/foldcomp-1.0.0-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:728c10b9363d4c0d108f0659a8b9628be0da90bfe80f44add19b54d9597ccad0", size = 382480, upload-time = "2026-02-10T11:33:59.228Z" },
-    { url = "https://files.pythonhosted.org/packages/81/d1/e8a23efda4e7b095e7538eb830baa5c08a0cc8a18fcbf1628047b035e2fa/foldcomp-1.0.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:dc3056be05c1af7c9509eac182cf4fd9ae28d16c8b501c17ec1c61a92c6e1bce", size = 201599, upload-time = "2026-02-10T11:34:00.105Z" },
-    { url = "https://files.pythonhosted.org/packages/3d/e8/3e8af4570b4f8066881fac7254f9b95b5b4a58f28dc32234b3c8ed30bcd3/foldcomp-1.0.0-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9115a3b0f8d2b8ae09993ae380af4795bb72b688f60c688f81b32b8d8d96e88e", size = 249785, upload-time = "2026-02-10T11:34:00.96Z" },
-    { url = "https://files.pythonhosted.org/packages/87/ea/a6a382eac349ed72ca7eb2a0915d26b5ab07600d7139347528bd7ec68664/foldcomp-1.0.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:e8fcfab57dafe66de84d570feba15ef029895a52df8079f03bdae8047a60dd3e", size = 1286230, upload-time = "2026-02-10T11:34:02.841Z" },
-    { url = "https://files.pythonhosted.org/packages/71/f8/cd544a5613cf1bc4d8b3b5e52b3fe2b3f04fa1943bb3f48e4d3572183c3e/foldcomp-1.0.0-cp313-cp313-win32.whl", hash = "sha256:35c17307f20d8dcb72bca84bd43bc521f16cbc0d74ec4630adda484fe30ffff7", size = 135030, upload-time = "2026-02-10T11:34:03.89Z" },
-    { url = "https://files.pythonhosted.org/packages/fa/a3/065516e7778fac4283a8de4c8e80526e2b06b3d9a2fff250985b5a2a33a1/foldcomp-1.0.0-cp313-cp313-win_amd64.whl", hash = "sha256:e30c7b5240ad86bd2c0235841184900470a7bfd15adce448b8d0eaabf4928ad7", size = 145994, upload-time = "2026-02-10T11:34:04.674Z" },
-    { url = "https://files.pythonhosted.org/packages/77/03/4b24c85dfeb5cb6dcdfea1eda2d885e998f487288ab81fbf97da4b603d44/foldcomp-1.0.0-cp314-cp314-macosx_10_13_universal2.whl", hash = "sha256:1123570138adf2c5fb53b530a97652991983762cd39fec14e7bce694b6517c4f", size = 382490, upload-time = "2026-02-10T11:34:05.616Z" },
-    { url = "https://files.pythonhosted.org/packages/62/ac/3a3389c56520570603dddecbe87d80ff94265a766cc59302bcddd9e64458/foldcomp-1.0.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:ab13a9be07729cae6510a82c1a18d41997f0489bb2ebd8dcac4666c8210605c9", size = 201625, upload-time = "2026-02-10T11:34:06.584Z" },
-    { url = "https://files.pythonhosted.org/packages/63/95/a10868b1ef2a3e328857a3d4270fb465638a814635a63b554fcc75454f92/foldcomp-1.0.0-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:114b6f00a538359bfa35f70e754f34a8ed70f8166f12ddaef5659892ac387c53", size = 249827, upload-time = "2026-02-10T11:34:07.503Z" },
-    { url = "https://files.pythonhosted.org/packages/bf/75/cd71771d2d4b03176d3e411a2a19822a67d2b5dda437ad75636d57ee09b5/foldcomp-1.0.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:3c31c453284ae6c939b85578757bbf8f7483d411dae04a834b78c14e849c6565", size = 1286257, upload-time = "2026-02-10T11:34:08.895Z" },
-    { url = "https://files.pythonhosted.org/packages/e6/15/87171b090eb41be6480c74ff593afa252a78121c4df58d39d0b039b81f6a/foldcomp-1.0.0-cp314-cp314-win32.whl", hash = "sha256:205f300de632914fd33fbeb4e1f09e51d7f07256c5fb442aad3fd11c7a0a8535", size = 140595, upload-time = "2026-02-10T11:34:09.819Z" },
-    { url = "https://files.pythonhosted.org/packages/80/f7/31a3ba1f5f31fed992356efac4b7c397795beb206492a7406040d1d26043/foldcomp-1.0.0-cp314-cp314-win_amd64.whl", hash = "sha256:d06cdd0b9275cda6542c60cd034b8da29adf0ca5b136ea9078fcbf9d7e3a89d7", size = 149302, upload-time = "2026-02-10T11:34:10.637Z" },
 ]
 
 [[package]]
@@ -1534,7 +1535,7 @@ name = "pexpect"
 version = "4.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "ptyprocess" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/42/92/cc564bf6381ff43ce1f4d06852fc19a2f11d180f23dc32d9588bee2f149d/pexpect-4.9.0.tar.gz", hash = "sha256:ee7d41123f3c9911050ea2c2dac107568dc43b2d3b0c7557a33212c398ead30f", size = 166450, upload-time = "2023-11-25T09:07:26.339Z" }
 wheels = [
@@ -1600,6 +1601,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pip"
+version = "26.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/15/4500e320e6b101ec3b719ae85b697d9940b6cda672bc555bd6016fc60c6f/pip-26.2.1.tar.gz", hash = "sha256:f6ad667e89a1fe78046c8f13232b247200f5258d7828f3f7883d660878e0813f", size = 1848877, upload-time = "2026-08-04T22:51:14.148Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f3/6e/1736e5b4ae2b778ef2f81c47d797de9f891d4d8acb047a24ca37a60294dd/pip-26.2.1-py3-none-any.whl", hash = "sha256:71138adf1f4ca900cdb7d289c21b7494329f2332b6d85f0e1c42108c0384ed3e", size = 1816632, upload-time = "2026-08-04T22:51:12.472Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.10.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1620,7 +1630,7 @@ wheels = [
 [[package]]
 name = "pooled-ppi"
 version = "26.0.dev0"
-source = { git = "https://github.com/jurgjn/pooled-ppi.git#0a73e6c6708173b2343798dcaa8f3381ca149f8a" }
+source = { git = "https://github.com/jurgjn/pooled-ppi.git?branch=develop#ef107ee421b4f30d7b27b4357068f8da475ec5c7" }
 dependencies = [
     { name = "af3io" },
     { name = "biopython" },
@@ -1632,6 +1642,7 @@ dependencies = [
     { name = "scipy" },
     { name = "seaborn" },
     { name = "snakemake" },
+    { name = "sqlite-utils" },
     { name = "tqdm" },
 ]
 
@@ -2452,6 +2463,33 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f2/e3/5aa06f167559f8c0bdae487e297d23ba548150ab016a3418265d617a4985/sqlalchemy-2.0.50-cp314-cp314t-win32.whl", hash = "sha256:1fbd55a969d7ac44a98e3dec75016074f809fa08f871585ace58dde110d1bf3e", size = 2150823, upload-time = "2026-05-24T20:08:58.644Z" },
     { url = "https://files.pythonhosted.org/packages/65/9b/112fb8f977582d7489d036e409e3723948bcf5320b3ac465f3c481bbe8f9/sqlalchemy-2.0.50-cp314-cp314t-win_amd64.whl", hash = "sha256:c5c3cdb753a9004183e1ccb634b41611654c989e61bc68617ce878e46d6f1e51", size = 2185794, upload-time = "2026-05-24T20:09:00.319Z" },
     { url = "https://files.pythonhosted.org/packages/d0/10/f7220e9b784d295d241c86ed99aeb537f92afcd469a64861f2717e9bb077/sqlalchemy-2.0.50-py3-none-any.whl", hash = "sha256:92064363517a3ff8212b5a93b8c62876579d8dfd1ca5b561335f30152d884fa9", size = 1943861, upload-time = "2026-05-24T19:59:01.119Z" },
+]
+
+[[package]]
+name = "sqlite-fts4"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c2/6d/9dad6c3b433ab8912ace969c66abd595f8e0a2ccccdb73602b1291dbda29/sqlite-fts4-1.0.3.tar.gz", hash = "sha256:78b05eeaf6680e9dbed8986bde011e9c086a06cb0c931b3cf7da94c214e8930c", size = 9718, upload-time = "2022-07-30T01:14:26.943Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/29/0096e8b1811aaa78cfb296996f621f41120c21c2f5cd448ae1d54979d9fc/sqlite_fts4-1.0.3-py3-none-any.whl", hash = "sha256:0359edd8dea6fd73c848989e1e2b1f31a50fe5f9d7272299ff0e8dbaa62d035f", size = 9972, upload-time = "2022-07-30T01:14:24.942Z" },
+]
+
+[[package]]
+name = "sqlite-utils"
+version = "4.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "click-default-group" },
+    { name = "pip" },
+    { name = "pluggy" },
+    { name = "python-dateutil" },
+    { name = "sqlite-fts4" },
+    { name = "tabulate" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/6b/4a7b3d20c92e6c7acedc96ef620df8e1ea8f94a26a41ab788c1c08055815/sqlite_utils-4.2.1.tar.gz", hash = "sha256:76114b6a5414714e6c70e5fa5c4781b301b590f6951b5da39c8cc60c21382ba1", size = 311722, upload-time = "2026-08-13T23:59:17.848Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/eb/d0/a20b9ea8686ea14f171582f3ce9f9b40b8fbb858fea744896191c09f2c2f/sqlite_utils-4.2.1-py3-none-any.whl", hash = "sha256:7fbaee670713b25eceba05779b844f0895efaf680d9a226fa5ba7dfe165721c5", size = 99482, upload-time = "2026-08-13T23:59:16.796Z" },
 ]
 
 [[package]]

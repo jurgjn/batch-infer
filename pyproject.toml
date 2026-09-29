@@ -4,6 +4,7 @@ version = "26.0-dev"
 requires-python = ">=3.13"
 dependencies = [
     "af3io",
+    "foldcomp @ git+https://github.com/steineggerlab/foldcomp.git@v1.0.0",
     "ipykernel",
     "ipywidgets",
     "pooled-ppi",
@@ -18,7 +19,7 @@ dependencies = [
 batch-infer = "batch_infer.cli:cli"
 
 [tool.uv.sources]
-af3io = { git = "https://github.com/jurgjn/af3io.git", rev = "ed5c96f" }
+af3io = { git = "https://github.com/jurgjn/af3io.git", branch = "main" }
 pooled-ppi = { git = "https://github.com/jurgjn/pooled-ppi.git" , branch = "develop" }
 
 [build-system]
