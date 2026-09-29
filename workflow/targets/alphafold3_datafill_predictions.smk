@@ -56,6 +56,8 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
                 '--model_dir=/root/models '
                 '--db_dir=/root/public_databases '
             ),
+            # remove redundant <id>_data.json from predictions before zipping (default: True, i.e. current behaviour)
+            drop_data = 'true' if config['alphafold3']['predictions'].get('drop_data', True) else 'false',
         retries: config['alphafold3']['predictions']['retries']
         resources:
             runtime = config['alphafold3']['predictions']['runtime'],
@@ -93,9 +95,11 @@ for batch_id, df_batch in make_singleton_batches_().groupby('batch_id'):
 
             cd $TMPDIR/alphafold3_predictions
             for ALPHAFOLD3_ID in $ALPHAFOLD3_IDS; do
-                OUT_DATA="$ALPHAFOLD3_ID"/"$ALPHAFOLD3_ID"_data.json
-                echo Remove redundant data pipeline output "$OUT_DATA"
-                rm $OUT_DATA
+                if [ "{params.drop_data}" = "true" ]; then
+                    OUT_DATA="$ALPHAFOLD3_ID"/"$ALPHAFOLD3_ID"_data.json
+                    echo Remove redundant data pipeline output "$OUT_DATA"
+                    rm $OUT_DATA
+                fi
                 echo Compressing predictions to $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip
                 zip -r $SMKDIR/alphafold3_predictions/$ALPHAFOLD3_ID.zip $ALPHAFOLD3_ID
             done
