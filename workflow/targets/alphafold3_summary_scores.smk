@@ -8,7 +8,7 @@ rule alphafold3_summary_scores_run:
         '{prefix}/alphafold3_summary_confidences.parquet'
     threads: 64
     resources:
-        runtime = '4h',
+        runtime = '24h',
         mem_mb = 262144,
     run:
         prediction_paths = list(Path(input[0]).absolute().glob('*.zip'))#[:10]
