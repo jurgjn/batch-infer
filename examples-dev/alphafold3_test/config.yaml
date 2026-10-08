@@ -1,5 +1,6 @@
 alphafold3:
-  container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.4.sif
+  #container: /cluster/project/beltrao/shared/alphafold3/images/alphafold3_v3.0.4.sif
+  container: /cluster/project/beltrao/jjaenes/26.06_batch-infer/software/alphafold3-colab/alphafold3-colab_5e1abce.sif
   test:
     runtime: 4h
     mem_mb: 16384
@@ -12,4 +13,5 @@ alphafold3:
 
 singularity:
   container_dir: /cluster/project/beltrao/shared/alphafold3/images/
-  pull: docker://jurgjn/alphafold3:v3.0.4
+  pull: docker://jurgjn/alphafold3:v3.0.3
+  #pull: docker://jurgjn/limix@sha256:bf3188a9959a5ffa17821fe3033b3a1f3674a8b1fc6f5b2dd7ac3c91e2d63922
