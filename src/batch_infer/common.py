@@ -185,6 +185,39 @@ def alphafold3_read_predictions_multigpu(batch_runtime_hrs, tokens_min, tokens_m
     print(df_.groupby('batch_id').agg(no_of_sequences=('id', len), predicted_runtime=('weight', 'sum')))
     return df_
 
+def runtime_from_table(tokens, runtime_table_s):
+    """Seconds per input of `tokens`, linearly interpolated from [[tokens, seconds], ...] (flat outside the table)"""
+    tab_ = np.array(runtime_table_s, dtype=float)
+    tab_ = tab_[np.argsort(tab_[:, 0])]
+    return float(np.interp(tokens, tab_[:, 0], tab_[:, 1]))
+
+def pack_batches(df, max_per_batch=1, budget_s=None, runtime_table_s=None, order='none'):
+    """
+    Assign a batch_id to each row of df (columns: id, tokens), walking the rows in `order` (none = as given,
+    tokens_desc, tokens_asc) and starting a new batch when the batch would exceed max_per_batch inputs or, with a
+    runtime_table_s, when the sum of predicted runtimes would exceed budget_s. Defaults give one input per batch.
+    """
+    if order == 'tokens_desc':
+        df = df.sort_values(['tokens', 'id'], ascending=[False, True])
+    elif order == 'tokens_asc':
+        df = df.sort_values(['tokens', 'id'])
+    df = df.reset_index(drop=True)
+    if runtime_table_s:
+        df['runtime_s'] = df['tokens'].map(lambda t: runtime_from_table(t, runtime_table_s))
+    else:
+        df['runtime_s'] = np.nan
+    batch_ids_, batch_id_, n_, acc_ = [], 0, 0, 0.0
+    for runtime_s_ in df['runtime_s']:
+        over_budget_ = bool(runtime_table_s) and budget_s is not None and acc_ + runtime_s_ > budget_s
+        if n_ > 0 and (n_ >= max_per_batch or over_budget_):
+            batch_id_ += 1
+            n_, acc_ = 0, 0.0
+        batch_ids_.append(batch_id_)
+        n_ += 1
+        acc_ += 0.0 if np.isnan(runtime_s_) else runtime_s_
+    df['batch_id'] = batch_ids_
+    return df
+
 def alphafold3_write_monomer(af3_id, seq):
     json_ = """
 {
