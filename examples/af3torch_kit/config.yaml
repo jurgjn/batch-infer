@@ -1,0 +1,26 @@
+# Anthropic's af3_torch kit (OpenFold3 openbind weights), several pools per GPU job. See README, "Faster predictions".
+# Batching values measured on the RTX PRO 6000 Blackwell (96 GB) with 3 recycles and 5 samples; re-measure for other GPUs.
+alphafold3:
+  container: /cluster/project/beltrao/jbuhmann/images/af3_torch-kit_obporter.sif
+  model_dir: /path/to/weights/af3_torch_ob   # holds of3_ported_weights.bin.zst (kit: run.sh install --variant ob)
+  data_sources: >-
+    --data_dir=/cluster/project/beltrao/shared/25.05_alphafold3_msas_human
+  predictions:
+    run_alphafold_wrapper: run_af3torch_kit.sh
+    runtime: 4h
+    mem_mb: 65536
+    disk_mb: 16384
+    slurm_extra: '--gpus=nvidia_rtx_pro_6000:1 --gres=gpumem:90g'
+    singularity_args: '--cleanenv --bind $TMPDIR/alphafold_cache:/root/jit --env AF3_TORCH_PARAMS_DIR=/root/models --env MODEL_OPT_JIT_ROOT=/root/jit --env TMPDIR=/root/jit --env PYTHONHASHSEED=0 --env AF3TORCH_KIT_MODE=big --env AF3TORCH_KIT_CONFIG=h100'
+    run_alphafold_args: >-
+      --num_recycles=3
+      --num_diffusion_samples=5
+  predictions_batched:
+    max_pools_per_job: 40
+    runtime_table_s: [[1600, 90], [3000, 110], [3500, 200], [4000, 240], [4400, 260], [4500, 270]]
+    budget_hrs: 2.2
+    job_overhead_s: 600
+    tokens_min: 16
+    tokens_max: 4500
+    order: tokens_desc
+    disk_mb_per_pool: 2048
