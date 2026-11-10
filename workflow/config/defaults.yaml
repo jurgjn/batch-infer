@@ -46,6 +46,26 @@ alphafold3:
     mem_mb: 98304
     disk_mb: 16384
     slurm_extra: '--gpus=a100:1'
+  # alphafold3_datafill_predictions_batched: how many pools share one GPU job (one container call over all of them);
+  # every other prediction setting comes from `predictions` above. Defaults keep one pool per job. To pack, raise
+  # max_pools_per_job and give runtime_table_s + budget_hrs, both measured for your engine and GPU.
+  predictions_batched:
+    max_pools_per_job: 1
+    # [[tokens, seconds], ...]: wall time per pool inside a multi-pool job, linearly interpolated
+    runtime_table_s: null
+    # pack until the predicted runtimes reach this (keep well below the job runtime); job_overhead_s is added once per job
+    budget_hrs: null
+    job_overhead_s: 0
+    # pools outside [tokens_min, tokens_max] are not batched and listed in <batches tsv>.refused (null = no bound)
+    tokens_min: null
+    tokens_max: null
+    # none (id order) | tokens_desc (largest first: an out-of-memory pool fails early) | tokens_asc
+    order: none
+    # local scratch per pool (filled input + outputs); disk_mb_min (default: predictions.disk_mb) is the minimum
+    disk_mb_per_pool: 2048
+    disk_mb_min: null
+    # job runtime (default: predictions.runtime)
+    runtime: null
 
   summary_ipsae:
     pae_cutoff: 10
