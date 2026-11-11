@@ -23,7 +23,7 @@ uv tool install -e . --with-executables-from af3io
 See [this notebook](results/alphafold3_datafill/run_alphafold.ipynb) for an example with pre-calculated data pipeline output.
 
 ## Faster predictions with Anthropic's af3_torch kit
-Anthropic's [model-optimization kits](https://github.com/anthropics/uplifting-biomolecular-modeling) include `af3_torch`, a PyTorch port of AlphaFold 3 with fused GPU kernels that runs the [OpenFold3](https://github.com/aqlaboratory/openfold-3) weights, **not** DeepMind's AlphaFold 3 weights. The original kit loads only the OpenFold3 preview-2 weights. [This fork](https://github.com/juliabuhmann/uplifting-biomolecular-modeling/tree/add-af3torch-openbind-porter) adds:
+Anthropic's [model-optimization kits](https://github.com/anthropics/uplifting-biomolecular-modeling) include `af3_torch`, a PyTorch port of AlphaFold 3 with fused GPU kernels. It runs the [OpenFold3](https://github.com/aqlaboratory/openfold-3) weights; DeepMind's AlphaFold 3 weights are not supported. The original kit loads only the OpenFold3 preview-2 weights. [This fork](https://github.com/juliabuhmann/uplifting-biomolecular-modeling/tree/add-af3torch-openbind-porter) adds:
 - a porter for the OpenFold3 **openbind** weights (`--variant ob`)
 - a kernel fix so the kit runs on compute capability 12.0 (RTX PRO 6000)
 - a GitHub Action that publishes the image
