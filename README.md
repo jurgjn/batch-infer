@@ -38,7 +38,8 @@ Tested only on the **NVIDIA RTX PRO 6000 Blackwell Server Edition (96 GB)** on E
    ```
 2. Get the weights (downloads and converts the openbind checkpoint into an empty directory):
    ```
-   apptainer run --nv --bind <weights dir>:/weights/af3_torch af3_torch-kit.sif install --weights /weights/af3_torch --fetch --variant ob
+   apptainer exec --bind <weights dir>:/weights/af3_torch af3_torch-kit.sif \
+     bash -c 'cd /kit/af3_torch && bash run.sh install --weights /weights/af3_torch --fetch --variant ob'
    ```
 3. Copy [examples/af3torch_kit/config.yaml](examples/af3torch_kit/config.yaml) into the run directory, set `container` and `model_dir`, and start as usual:
    ```
